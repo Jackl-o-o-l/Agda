@@ -61,3 +61,6 @@ data _≤:_ : Type → Type → Set where
     ≤:-refl : ∀{T} → T ≤: T
     ≤:-trans : ∀{T T′ T″} → T ≤: T′ → T′ ≤: T″ → T ≤: T″
     ≤:-fn : ∀{T₁ T₁′ T₂ T₂′} → T₁′ ≤: T₁ → T₂ ≤: T₂′ → T₁ ⇒ T₂ ≤: T₁′ ⇒ T₂′
+
+    var-≤:-exp : intvar ≤: intexp
+    var-≤:-acc : intvar ≤: intacc
