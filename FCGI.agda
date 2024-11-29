@@ -48,10 +48,16 @@ data Value : ∀{Γ A} → Γ ⊢ A → Set where
 infix 2 _⟶_ 
 
 data _⟶_ : ∀{Γ A} → (Γ ⊢ A) → (Γ ⊢ A) → Set where
-
     Suc-cong : ∀{Γ} {N N′ : Γ ⊢ ℕ} → N ⟶ N′ → Suc N ⟶ Suc N′
     Pos-cong : ∀{Γ} {N N′ : Γ ⊢ ℕ} → N ⟶ N′ → Pos N ⟶ Pos N′
     Negsuc-cong : ∀{Γ} {N N′ : Γ ⊢ ℕ} → N ⟶ N′ → Negsuc N ⟶ Negsuc N′
     
     App-cong₁ : ∀{Γ A B} {F F′ : Γ ⊢ A ⇒ B} {E : Γ ⊢ A} → F ⟶ F′ → App F E ⟶ App F′ E
     App-cong₂ : ∀{Γ A B} {V : Γ ⊢ A ⇒ B} {E E′ : Γ ⊢ A} → Value V → E ⟶ E′ → App V E ⟶ App V E′
+
+infix 1 _≤:_
+
+data _≤:_ : Type → Type → Set where
+    ≤:-refl : ∀{T} → T ≤: T
+    ≤:-trans : ∀{T T′ T″} → T ≤: T′ → T′ ≤: T″ → T ≤: T″
+    ≤:-fn : ∀{T₁ T₁′ T₂ T₂′} → T₁′ ≤: T₁ → T₂ ≤: T₂′ → T₁ ⇒ T₂ ≤: T₁′ ⇒ T₂′
