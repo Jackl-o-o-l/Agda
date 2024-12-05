@@ -1,3 +1,4 @@
+-- Types
 data Type : Set where
     comm : Type
     intexp : Type
@@ -14,14 +15,17 @@ infix 4 _∈_
 infixl 5 _,_
 infixr 7 _⇒_ 
 
+-- Contexts
 data Context : Set where
     · : Context
     _,_ : Context → Type → Context
 
+-- Variables and the lookup judgement
 data _∈_ : Type → Context → Set where
     Z : ∀{Γ A} → A ∈ Γ , A
     S : ∀{Γ A B} → B ∈ Γ → B ∈ Γ , A
 
+-- Terms and the typing judgement
 data _⊢_ : Context → Type → Set where
     Var : ∀{Γ A} → A ∈ Γ → Γ ⊢ A
 
@@ -79,6 +83,7 @@ _[_] {Γ} {A} {B} N M = subst {Γ , B} {Γ} σ {A} N
     σ Z = M
     σ (S x) = Var x
 
+-- Reduction
 infix 2 _⟶_ 
 
 data _⟶_ : ∀{Γ A} → (Γ ⊢ A) → (Γ ⊢ A) → Set where
