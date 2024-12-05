@@ -44,7 +44,7 @@ data Value : ∀{Γ A} → Γ ⊢ A → Set where
     V-Lambda : ∀{Γ A B} {F : Γ , A ⊢ B} → Value (Lambda F)
 
 -- Renaming
-ext : ∀{Γ Δ} → (∀{A} → A ∈ Γ → A ∈ Δ) → (∀{A B} → B ∈ Γ , A → B ∈ Δ , A)
+ext : ∀{Γ Δ} → (∀{A} → A ∈ Γ → A ∈ Δ) → (∀{A B}  →  B ∈ Γ , A  →  B ∈ Δ , A)
 ext ρ Z = Z
 ext ρ (S x) = S (ρ x)
 
@@ -56,6 +56,20 @@ rename ρ Zero = Zero
 rename ρ (Suc N) = Suc (rename ρ N)
 rename ρ (Pos N) = Pos (rename ρ N)
 rename ρ (Negsuc N) = Negsuc (rename ρ N)
+
+-- Simultaneous substitution
+exts : ∀{Γ Δ} → (∀{A} → A ∈ Γ → Δ ⊢ A) → (∀{A B}  →  B ∈ Γ , A  →  Δ , A ⊢ B)
+exts σ Z = Var Z
+exts σ (S x) = rename S (σ x)
+
+subst : ∀{Γ Δ} → (∀{A} → A ∈ Γ → Δ ⊢ A) → (∀{A} → Γ ⊢ A → Δ ⊢ A)
+subst σ (Var x) = σ x
+subst σ (Lambda F) = Lambda (subst (exts σ) F)
+subst σ (App F E) = App (subst σ F) (subst σ E)
+subst σ Zero = Zero
+subst σ (Suc N) = Suc (subst σ N)
+subst σ (Pos N) = Pos (subst σ N)
+subst σ (Negsuc N) = Negsuc (subst σ N)
 
 infix 2 _⟶_ 
 
