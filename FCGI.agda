@@ -29,13 +29,11 @@ data _⊢_ : Context → Type → Set where
     Lambda : ∀{Γ A B} → Γ , A ⊢ B → Γ ⊢ A ⇒ B
     App : ∀{Γ A B} → Γ ⊢ A ⇒ B → Γ ⊢ A → Γ ⊢ B
 
-    -- constant
-    Zero : ∀ {Γ} → Γ ⊢ ℕ
-    Suc : ∀ {Γ} → Γ ⊢ ℕ → Γ ⊢ ℕ
-    Pos : ∀ {Γ} → Γ ⊢ ℕ → Γ ⊢ ℤ
-    Negsuc : ∀ {Γ} → Γ ⊢ ℕ → Γ ⊢ ℤ
-
--- QUESTION: should i add "_" after things like S, suc, pos, etc.?
+    -- constants
+    Zero : ∀{Γ} → Γ ⊢ ℕ
+    Suc : ∀{Γ} → Γ ⊢ ℕ → Γ ⊢ ℕ
+    Pos : ∀{Γ} → Γ ⊢ ℕ → Γ ⊢ ℤ
+    Negsuc : ∀{Γ} → Γ ⊢ ℕ → Γ ⊢ ℤ
 
 data Value : ∀{Γ A} → Γ ⊢ A → Set where
     V-Zero : ∀{Γ} → Value (Zero {Γ})
@@ -44,6 +42,20 @@ data Value : ∀{Γ A} → Γ ⊢ A → Set where
     V-Negsuc : ∀{Γ} {V : Γ ⊢ ℕ} → Value V → Value (Pos V) 
 
     V-Lambda : ∀{Γ A B} {F : Γ , A ⊢ B} → Value (Lambda F)
+
+-- Renaming
+ext : ∀{Γ Δ} → (∀{A} → A ∈ Γ → A ∈ Δ) → (∀{A B} → B ∈ Γ , A → B ∈ Δ , A)
+ext ρ Z = Z
+ext ρ (S x) = S (ρ x)
+
+rename : ∀{Γ Δ} → (∀{A} → A ∈ Γ → A ∈ Δ) → (∀{A} → Γ ⊢ A → Δ ⊢ A)
+rename ρ (Var x) = Var (ρ x)
+rename ρ (Lambda F) = Lambda (rename (ext ρ) F)
+rename ρ (App F E) = App (rename ρ F) (rename ρ E)
+rename ρ Zero = Zero
+rename ρ (Suc N) = Suc (rename ρ N)
+rename ρ (Pos N) = Pos (rename ρ N)
+rename ρ (Negsuc N) = Negsuc (rename ρ N)
 
 infix 2 _⟶_ 
 
@@ -63,4 +75,4 @@ data _≤:_ : Type → Type → Set where
     ≤:-fn : ∀{T₁ T₁′ T₂ T₂′} → T₁′ ≤: T₁ → T₂ ≤: T₂′ → T₁ ⇒ T₂ ≤: T₁′ ⇒ T₂′
 
     var-≤:-exp : intvar ≤: intexp
-    var-≤:-acc : intvar ≤: intacc
+    var-≤:-acc : intvar ≤: intacc 
