@@ -1,3 +1,4 @@
+-- Operator precedence and associativity
 infix 4 _≤_ _<_ _≤ₛ_
 infixl 6 _+_ _∸_ _+ₛ_ _∸ₛ_
 infixl 7 _*_
@@ -11,6 +12,7 @@ _+_ : ℕ → ℕ → ℕ
 zero + n = n
 suc m + n = suc (m + n)
 
+-- Monus (a∸b = max{a-b, 0})
 _∸_ : ℕ → ℕ → ℕ
 m ∸ zero = m
 zero ∸ suc n = zero
