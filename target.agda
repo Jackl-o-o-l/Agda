@@ -1,5 +1,5 @@
-infix 4 _≤_ _<_
-infixl 6 _+_ _∸_
+infix 4 _≤_ _<_ _≤ₛ_
+infixl 6 _+_ _∸_ _+ₛ_ _∸ₛ_
 infixl 7 _*_
 
 -- Natural numbers
@@ -41,19 +41,51 @@ data _<_ : ℕ → ℕ → Set where
 <→≤ (z<s) = s≤s z≤n
 <→≤ (s<s m<n) = s≤s (<→≤ m<n)
 
--- Stack descriptors
-record S : Set where
+-- Stack descriptor: (frames, displacement)
+record SD : Set where
     constructor ⟨_,_⟩
     field
         f : ℕ
         d : ℕ
-    
-_+ₛ_ : S → ℕ → S
+
+-- Stack descriptor operations    
+_+ₛ_ : SD → ℕ → SD
 ⟨ S_f , S_d ⟩ +ₛ n = ⟨ S_f , S_d + n ⟩
 
-_∸ₛ_ : S → ℕ → S
+_∸ₛ_ : SD → ℕ → SD
 ⟨ S_f , S_d ⟩ ∸ₛ n = ⟨ S_f , S_d ∸ n ⟩
 
-data _≤ₛ_ : S → S → Set where
+-- Stack descriptor lexicographic ordering
+data _≤ₛ_ : SD → SD → Set where
     <-f : ∀ {S_f S'_f S_d S'_d} → S_f < S'_f → ⟨ S_f , S_d ⟩ ≤ₛ ⟨ S'_f , S'_d ⟩
     ≤-d : ∀ {S_f S_d S'_d} → S_d ≤ S'_d → ⟨ S_f , S_d ⟩ ≤ₛ ⟨ S_f , S'_d ⟩
+
+-- Operator
+data UnaryOp : Set where 
+    UMinus : UnaryOp
+
+data BinaryOp : Set where
+    BPlus : BinaryOp
+    BMinus : BinaryOp
+    BTimes : BinaryOp
+
+data RelOp : Set where
+    RLeq : RelOp
+    RLt : RelOp
+
+-- Nonterminals
+-- Lefthand sides
+data L (sd : SD) : Set where
+    l-var : (sdᵛ : SD) → sdᵛ ≤ₛ sd ∸ₛ suc zero → L sd
+    l-sbrs : L sd
+
+-- Simple righthand sides
+data S (sd : SD) : Set where
+    s-l : L sd → S sd
+    s-lit : ℕ → S sd
+
+-- Righthand sides
+data R (sd : SD) : Set where
+    r-s : S sd → R sd
+    r-unary : UnaryOp → S sd → R sd
+    r-binary : S sd → BinaryOp → S sd → R sd
