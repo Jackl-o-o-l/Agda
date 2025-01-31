@@ -1,3 +1,11 @@
+-- Operator precedence and associativity
+infix 1 _≤:_
+infix 2 _⟶_ 
+infix 4 _⊢_
+infix 4 _∈_
+infixl 5 _,_
+infixr 7 _⇒_
+
 -- Types
 data Type : Set where
     comm : Type
@@ -7,13 +15,6 @@ data Type : Set where
     ℕ : Type
     ℤ : Type
     _⇒_ : Type  →  Type  →  Type
-
-
-infix 4 _⊢_
-infix 4 _∈_
-
-infixl 5 _,_
-infixr 7 _⇒_ 
 
 -- Contexts
 data Context : Set where
@@ -84,8 +85,6 @@ _[_] {Γ} {A} {B} N M = subst {Γ , B} {Γ} σ {A} N
     σ (S x) = Var x
 
 -- Reduction
-infix 2 _⟶_ 
-
 data _⟶_ : ∀{Γ A}  →  (Γ ⊢ A)  →  (Γ ⊢ A)  →  Set where
     Suc-cong : ∀{Γ} {N N′ : Γ ⊢ ℕ}  →  N ⟶ N′  →  Suc N ⟶ Suc N′
     Pos-cong : ∀{Γ} {N N′ : Γ ⊢ ℕ}  →  N ⟶ N′  →  Pos N ⟶ Pos N′
@@ -95,8 +94,7 @@ data _⟶_ : ∀{Γ A}  →  (Γ ⊢ A)  →  (Γ ⊢ A)  →  Set where
     App-cong₂ : ∀{Γ A B} {V : Γ ⊢ A ⇒ B} {E E′ : Γ ⊢ A}  →  Value V  →  E ⟶ E′  →  App V E ⟶ App V E′
     Lambda-β : ∀{Γ A B} {F : Γ , A ⊢ B} {V : Γ ⊢ A}  →  Value V  →  App (Lambda F) V ⟶ F [ V ]
 
-infix 1 _≤:_
-
+-- Subtype relation
 data _≤:_ : Type  →  Type  →  Set where
     ≤:-refl : ∀{T}  →  T ≤: T
     ≤:-trans : ∀{T T′ T″}  →  T ≤: T′  →  T′ ≤: T″  →  T ≤: T″
