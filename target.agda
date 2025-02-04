@@ -82,7 +82,7 @@ data RelOp : Set where
 -- Nonterminals
 -- Lefthand sides
 data L (sd : SD) : Set where
-    l-var : (sdᵛ : SD) → sdᵛ ≤ₛ sd ∸ₛ suc zero → L sd
+    l-var : (sdᵛ : SD) → sdᵛ ≤ₛ sd ∸ₛ 1 → L sd
     l-sbrs : L sd
 
 -- Simple righthand sides
