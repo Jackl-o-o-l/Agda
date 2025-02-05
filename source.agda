@@ -1,3 +1,5 @@
+module source where
+
 -- Operator precedence and associativity
 infix 1 _≤:_
 infix 2 _⟶_ 

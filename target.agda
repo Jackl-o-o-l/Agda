@@ -1,3 +1,5 @@
+module target where
+
 -- Operator precedence and associativity
 infix 4 _≤_ _<_ _≤ₛ_
 infixl 6 _+_ _∸_ _+ₛ_ _∸ₛ_
