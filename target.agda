@@ -95,3 +95,11 @@ data R (sd : SD) : Set where
     r-s : S sd → R sd
     r-unary : UnaryOp → S sd → R sd
     r-binary : S sd → BinaryOp → S sd → R sd
+
+-- Instruction sequences
+data I (sd : SD) : Set where
+    stop : I sd
+    assign : (δ : ℕ) → L (sd +ₛ δ) → R sd → I (sd +ₛ δ) → I sd
+    if-then-else : S sd → RelOp → S sd → (δ : ℕ) → I (sd +ₛ δ) → I (sd +ₛ δ) → I sd
+    adjustdisp : (δ : ℕ) → I (sd +ₛ δ) → I sd
+    popto : (sd' : SD) → sd' ≤ₛ sd → I sd' → I sd
