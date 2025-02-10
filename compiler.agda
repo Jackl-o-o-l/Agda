@@ -17,13 +17,13 @@ data _×_ (A B : Set) : Set where
 
 --  Type Interpretation
 ⟦_⟧ty : Type → SD → Set
-⟦ comm ⟧ty s = ∀{s'} → (s ≤ₛ s') → I s' → I s'
-⟦ intexp ⟧ty s = ∀{s'} → (s ≤ₛ s') → (R s' → I s') → I s'
-⟦ intacc ⟧ty s = ∀{s'} → (s ≤ₛ s') → I s' → (R s' → I s')
-⟦ intvar ⟧ty s = ⟦ intexp ⟧ty s × ⟦ intacc ⟧ty s
-⟦ source.ℕ ⟧ty s = R s
-⟦ source.ℤ ⟧ty s = R s
-⟦ θ₁ ⇒ θ₂ ⟧ty s = ∀{s'} → (s ≤ₛ s') → ⟦ θ₁ ⟧ty s' → ⟦ θ₂ ⟧ty s'
+⟦ comm ⟧ty sd = ∀{sd'} → (sd ≤ₛ sd') → I sd' → I sd'
+⟦ intexp ⟧ty sd = ∀{sd'} → (sd ≤ₛ sd') → (R sd' → I sd') → I sd'
+⟦ intacc ⟧ty sd = ∀{sd'} → (sd ≤ₛ sd') → I sd' → (R sd' → I sd')
+⟦ intvar ⟧ty sd = ⟦ intexp ⟧ty sd × ⟦ intacc ⟧ty sd
+⟦ source.ℕ ⟧ty sd = R sd
+⟦ source.ℤ ⟧ty sd = R sd
+⟦ θ₁ ⇒ θ₂ ⟧ty sd = ∀{sd'} → (sd ≤ₛ sd') → ⟦ θ₁ ⟧ty sd' → ⟦ θ₂ ⟧ty sd'
 
 -- Unit type for empty context
 data ∅ : Set where
@@ -32,4 +32,6 @@ data ∅ : Set where
 -- Context Interpretation
 ⟦_⟧ctx : Context → SD → Set
 ⟦ · ⟧ctx _ = ∅
-⟦ Γ , A ⟧ctx s = ⟦ Γ ⟧ctx s × ⟦ A ⟧ty s
+⟦ Γ , A ⟧ctx sd = ⟦ Γ ⟧ctx sd × ⟦ A ⟧ty sd
+
+-- ⟦_⊢_⟧ : ∀ {Γ A sd} → Γ ⊢ A → ⟦ Γ ⟧ctx sd → ⟦ A ⟧ty sd

@@ -42,6 +42,14 @@ data _⊢_ : Context  →  Type  →  Set where
     Pos : ∀{Γ}  →  Γ ⊢ ℕ  →  Γ ⊢ ℤ
     Negsuc : ∀{Γ}  →  Γ ⊢ ℕ  →  Γ ⊢ ℤ
 
+    -- command
+    Seq : ∀{Γ} → Γ ⊢ comm → Γ ⊢ comm → Γ ⊢ comm
+
+    -- intexp
+    Neg : ∀{Γ} → Γ ⊢ intexp → Γ ⊢ intexp
+    Plus : ∀{Γ} → Γ ⊢ intexp → Γ ⊢ intexp → Γ ⊢ intexp
+
+
 data Value : ∀{Γ A}  →  Γ ⊢ A  →  Set where
     V-Zero : ∀{Γ}  →  Value (Zero {Γ})
     V-Suc : ∀{Γ} {V : Γ ⊢ ℕ}  →  Value V  →  Value (Suc V)
@@ -63,6 +71,9 @@ rename ρ Zero = Zero
 rename ρ (Suc N) = Suc (rename ρ N)
 rename ρ (Pos N) = Pos (rename ρ N)
 rename ρ (Negsuc N) = Negsuc (rename ρ N)
+rename ρ (Seq c₁ c₂) = Seq (rename ρ c₁) (rename ρ c₂)
+rename ρ (Neg I) = Neg (rename ρ I)
+rename ρ (Plus I₁ I₂) = Plus (rename ρ I₁) (rename ρ I₂)
 
 -- Simultaneous substitution
 exts : ∀{Γ Δ}  →  (∀{A}  →  A ∈ Γ  →  Δ ⊢ A)  →  (∀{A B}  →  B ∈ Γ , A  →  Δ , A ⊢ B)
@@ -77,6 +88,9 @@ subst σ Zero = Zero
 subst σ (Suc N) = Suc (subst σ N)
 subst σ (Pos N) = Pos (subst σ N)
 subst σ (Negsuc N) = Negsuc (subst σ N)
+subst σ (Seq c₁ c₂) = Seq (subst σ c₁) (subst σ c₂)
+subst σ (Neg I) = Neg (subst σ I)
+subst σ (Plus I₁ I₂) = Plus (subst σ I₁) (subst σ I₂)
 
 -- Single substitution
 _[_] : ∀{Γ A B}  →  Γ , B ⊢ A  →  Γ ⊢ B → Γ ⊢ A
