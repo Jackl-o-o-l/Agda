@@ -2,7 +2,7 @@ module target where
 
 -- Operator precedence and associativity
 infix 4 _≤_ _<_ _≤ₛ_
-infixl 6 _+_ _∸_ _+ₛ_ _∸ₛ_
+infixl 6 _+_ _∸_ _+ₛ_ _∸ₛ_ _-ₛ_
 infixl 7 _*_
 
 -- Natural numbers
@@ -52,10 +52,21 @@ data _<_ : ℕ → ℕ → Set where
 <→≤ (z<s) = s≤s z≤n
 <→≤ (s<s m<n) = s≤s (<→≤ m<n)
 
--- -- Minus
--- _-_ : (m : ℕ) → (n : ℕ) → (p : n ≤ m) → ℕ
+data Fin : ℕ → Set where
+  fzero : ∀{n} → Fin (suc n)
+  fsuc : ∀{n} → (i : Fin n) → Fin (suc n)
+
+toℕ : ∀ {m} → Fin m → ℕ
+toℕ fzero = zero
+toℕ (fsuc i) = suc (toℕ i)
+
+-- Minus
+-- _-_ : (m : ℕ) → (n : ℕ) → (n ≤ m) → ℕ
+-- (m - n) _ = m ∸ n
 -- (m - zero) _ = m
 -- (suc m - suc n) p = (m - n) (inv-s≤s p)
+_-_ : (m : ℕ) → (n : Fin m) → ℕ
+m - n = m ∸ toℕ n
 
 -- Stack descriptor: (frames, displacement)
 record SD : Set where
@@ -70,6 +81,12 @@ _+ₛ_ : SD → ℕ → SD
 
 _∸ₛ_ : SD → ℕ → SD
 ⟨ S_f , S_d ⟩ ∸ₛ n = ⟨ S_f , S_d ∸ n ⟩
+
+-- _-ₛ_ : (sd : SD) → (n : ℕ) → n ≤ SD.d sd → SD
+-- (⟨ S_f , S_d ⟩ -ₛ n) p = ⟨ S_f , (S_d - n) p ⟩
+
+_-ₛ_ : (sd : SD) → Fin (SD.d sd) → SD
+⟨ S_f , S_d ⟩ -ₛ n = ⟨ S_f , S_d - n ⟩
 
 -- Stack descriptor lexicographic ordering
 data _≤ₛ_ : SD → SD → Set where
@@ -110,9 +127,9 @@ data R (sd : SD) : Set where
 data I (sd : SD) : Set where
     stop : I sd
     assign_inc : (δ : ℕ) → L (sd +ₛ δ) → R sd → I (sd +ₛ δ) → I sd
-    assign_dec : (δ : ℕ) → L (sd ∸ₛ δ) → R sd → I (sd ∸ₛ δ) → I sd
-    if-then-else_inc : S sd → RelOp → S sd → (δ : ℕ) → I (sd +ₛ δ) → I (sd +ₛ δ) → I sd
-    if-then-else_dec : S sd → RelOp → S sd → (δ : ℕ) → I (sd ∸ₛ δ) → I (sd ∸ₛ δ) → I sd
+    assign_dec : (δ : Fin (SD.d sd)) → L (sd -ₛ δ) → R sd → I (sd -ₛ δ)  → I sd
+    if-then-else_inc : (δ : ℕ) → S sd → RelOp → S sd → I (sd +ₛ δ) → I (sd +ₛ δ) → I sd
+    if-then-else_dec : (δ : Fin (SD.d sd)) → S sd → RelOp → S sd → I (sd -ₛ δ) → I (sd -ₛ δ) → I sd
     adjustdisp_inc : (δ : ℕ) → I (sd +ₛ δ) → I sd
-    adjustdisp_dec : (δ : ℕ) → I (sd ∸ₛ δ) → I sd
+    adjustdisp_dec : (δ : Fin (SD.d sd)) → I (sd -ₛ δ) → I sd
     popto : (sd' : SD) → sd' ≤ₛ sd → I sd' → I sd

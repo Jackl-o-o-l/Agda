@@ -117,4 +117,5 @@ data _≤:_ : Type  →  Type  →  Set where
     ≤:-fn : ∀{T₁ T₁′ T₂ T₂′}  →  T₁′ ≤: T₁  →  T₂ ≤: T₂′  →  T₁ ⇒ T₂ ≤: T₁′ ⇒ T₂′
 
     var-≤:-exp : intvar ≤: intexp
-    var-≤:-acc : intvar ≤: intacc 
+    var-≤:-acc : intvar ≤: intacc
+    ℕ-≤:-ℤ : ℕ ≤: ℤ
