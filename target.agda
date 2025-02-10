@@ -33,6 +33,9 @@ data _≤_ : ℕ → ℕ → Set where
     z≤n : ∀ {n : ℕ} → zero ≤ n
     s≤s : ∀ {m n : ℕ} → m ≤ n → suc m ≤ suc n
 
+-- inv-s≤s : ∀ {m n : ℕ} → suc m ≤ suc n → m ≤ n
+-- inv-s≤s (s≤s m≤n) = m≤n
+
 ≤-refl : ∀ {n : ℕ} → n ≤ n
 ≤-refl {zero} = z≤n
 ≤-refl {suc n} = s≤s ≤-refl
@@ -48,6 +51,11 @@ data _<_ : ℕ → ℕ → Set where
 <→≤ : ∀ {m n : ℕ} → m < n → suc m ≤ n
 <→≤ (z<s) = s≤s z≤n
 <→≤ (s<s m<n) = s≤s (<→≤ m<n)
+
+-- -- Minus
+-- _-_ : (m : ℕ) → (n : ℕ) → (p : n ≤ m) → ℕ
+-- (m - zero) _ = m
+-- (suc m - suc n) p = (m - n) (inv-s≤s p)
 
 -- Stack descriptor: (frames, displacement)
 record SD : Set where
@@ -70,7 +78,7 @@ data _≤ₛ_ : SD → SD → Set where
 
 -- Operator
 data UnaryOp : Set where 
-    UMinus : UnaryOp
+    UNeg : UnaryOp
 
 data BinaryOp : Set where
     BPlus : BinaryOp
@@ -101,7 +109,10 @@ data R (sd : SD) : Set where
 -- Instruction sequences
 data I (sd : SD) : Set where
     stop : I sd
-    assign : (δ : ℕ) → L (sd +ₛ δ) → R sd → I (sd +ₛ δ) → I sd
-    if-then-else : S sd → RelOp → S sd → (δ : ℕ) → I (sd +ₛ δ) → I (sd +ₛ δ) → I sd
-    adjustdisp : (δ : ℕ) → I (sd +ₛ δ) → I sd
+    assign_inc : (δ : ℕ) → L (sd +ₛ δ) → R sd → I (sd +ₛ δ) → I sd
+    assign_dec : (δ : ℕ) → L (sd ∸ₛ δ) → R sd → I (sd ∸ₛ δ) → I sd
+    if-then-else_inc : S sd → RelOp → S sd → (δ : ℕ) → I (sd +ₛ δ) → I (sd +ₛ δ) → I sd
+    if-then-else_dec : S sd → RelOp → S sd → (δ : ℕ) → I (sd ∸ₛ δ) → I (sd ∸ₛ δ) → I sd
+    adjustdisp_inc : (δ : ℕ) → I (sd +ₛ δ) → I sd
+    adjustdisp_dec : (δ : ℕ) → I (sd ∸ₛ δ) → I sd
     popto : (sd' : SD) → sd' ≤ₛ sd → I sd' → I sd
