@@ -43,6 +43,7 @@ data _⊢_ : Context  →  Type  →  Set where
     Negsuc : ∀{Γ}  →  Γ ⊢ ℕ  →  Γ ⊢ ℤ
 
     -- command
+    Skip : ∀{Γ} → Γ ⊢ comm
     Seq : ∀{Γ} → Γ ⊢ comm → Γ ⊢ comm → Γ ⊢ comm
 
     -- intexp
@@ -71,6 +72,7 @@ rename ρ Zero = Zero
 rename ρ (Suc N) = Suc (rename ρ N)
 rename ρ (Pos N) = Pos (rename ρ N)
 rename ρ (Negsuc N) = Negsuc (rename ρ N)
+rename ρ Skip = Skip
 rename ρ (Seq c₁ c₂) = Seq (rename ρ c₁) (rename ρ c₂)
 rename ρ (Neg I) = Neg (rename ρ I)
 rename ρ (Plus I₁ I₂) = Plus (rename ρ I₁) (rename ρ I₂)
@@ -88,6 +90,7 @@ subst σ Zero = Zero
 subst σ (Suc N) = Suc (subst σ N)
 subst σ (Pos N) = Pos (subst σ N)
 subst σ (Negsuc N) = Negsuc (subst σ N)
+subst σ Skip = Skip
 subst σ (Seq c₁ c₂) = Seq (subst σ c₁) (subst σ c₂)
 subst σ (Neg I) = Neg (subst σ I)
 subst σ (Plus I₁ I₂) = Plus (subst σ I₁) (subst σ I₂)
