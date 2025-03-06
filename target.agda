@@ -11,6 +11,13 @@ data ℕ : Set where
     suc : ℕ → ℕ
 {-# BUILTIN NATURAL ℕ #-}
 
+data ℤ : Set where
+    pos : ℕ → ℤ
+    negsuc : ℕ → ℤ
+{-# BUILTIN INTEGER       ℤ    #-}
+{-# BUILTIN INTEGERPOS    pos    #-}
+{-# BUILTIN INTEGERNEGSUC negsuc #-}
+
 _+_ : ℕ → ℕ → ℕ
 zero + n = n
 suc m + n = suc (m + n)
@@ -115,7 +122,7 @@ data L (sd : SD) : Set where
 -- Simple righthand sides
 data S (sd : SD) : Set where
     s-l : L sd → S sd
-    s-lit : ℕ → S sd
+    s-lit : ℤ → S sd
 
 -- Righthand sides
 data R (sd : SD) : Set where
