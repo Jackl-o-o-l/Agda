@@ -1,63 +1,65 @@
 module target where
 
 -- Operator precedence and associativity
-infix 4 _≤_ _<_ _≤ₛ_
-infixl 6 _+_ _∸_ _+ₛ_ _∸ₛ_ _-ₛ_
-infixl 7 _*_
+infix 4 _≤ₙ_ _<ₙ_ _≤ₛ_
+infixl 6 _+ₙ_ _∸ₙ_ _+ₛ_ _∸ₛ_ _-ₛ_
+infixl 7 _*ₙ_
+
+open import Data.Integer hiding (suc)
 
 -- Natural numbers
 data ℕ : Set where
     zero : ℕ
     suc : ℕ → ℕ
-{-# BUILTIN NATURAL ℕ #-}
+-- {-# BUILTIN NATURAL ℕ #-}
 
-data ℤ : Set where
-    pos : ℕ → ℤ
-    negsuc : ℕ → ℤ
-{-# BUILTIN INTEGER       ℤ    #-}
-{-# BUILTIN INTEGERPOS    pos    #-}
-{-# BUILTIN INTEGERNEGSUC negsuc #-}
+-- data ℤ : Set where
+--     pos : ℕ → ℤ
+--     negsuc : ℕ → ℤ
+-- {-# BUILTIN INTEGER       ℤ    #-}
+-- {-# BUILTIN INTEGERPOS    pos    #-}
+-- {-# BUILTIN INTEGERNEGSUC negsuc #-}
 
-_+_ : ℕ → ℕ → ℕ
-zero + n = n
-suc m + n = suc (m + n)
-{-# BUILTIN NATPLUS _+_ #-}
+_+ₙ_ : ℕ → ℕ → ℕ
+zero +ₙ n = n
+suc m +ₙ n = suc (m +ₙ n)
+-- {-# BUILTIN NATPLUS _+ₙ_ #-}
 
 -- Monus (a∸b = max{a-b, 0})
-_∸_ : ℕ → ℕ → ℕ
-m ∸ zero = m
-zero ∸ suc n = zero
-suc m ∸ suc n = m ∸ n
-{-# BUILTIN NATMINUS _∸_ #-}
+_∸ₙ_ : ℕ → ℕ → ℕ
+m ∸ₙ zero = m
+zero ∸ₙ suc n = zero
+suc m ∸ₙ suc n = m ∸ₙ n
+-- {-# BUILTIN NATMINUS _∸ₙ_ #-}
 
-_*_ : ℕ → ℕ → ℕ
-zero * n = zero
-suc m * n = n + m * n
-{-# BUILTIN NATTIMES _*_ #-}
+_*ₙ_ : ℕ → ℕ → ℕ
+zero *ₙ n = zero
+suc m *ₙ n = n +ₙ m *ₙ n
+-- {-# BUILTIN NATTIMES _*ₙ_ #-}
 
 -- Relations of natural numbers
-data _≤_ : ℕ → ℕ → Set where
-    z≤n : ∀ {n : ℕ} → zero ≤ n
-    s≤s : ∀ {m n : ℕ} → m ≤ n → suc m ≤ suc n
+data _≤ₙ_ : ℕ → ℕ → Set where
+    z≤ₙn : ∀ {n : ℕ} → zero ≤ₙ n
+    s≤ₙs : ∀ {m n : ℕ} → m ≤ₙ n → suc m ≤ₙ suc n
 
 -- inv-s≤s : ∀ {m n : ℕ} → suc m ≤ suc n → m ≤ n
 -- inv-s≤s (s≤s m≤n) = m≤n
 
-≤-refl : ∀ {n : ℕ} → n ≤ n
-≤-refl {zero} = z≤n
-≤-refl {suc n} = s≤s ≤-refl
+≤ₙ-refl : ∀ {n : ℕ} → n ≤ₙ n
+≤ₙ-refl {zero} = z≤ₙn
+≤ₙ-refl {suc n} = s≤ₙs ≤ₙ-refl
 
-≤-trans : ∀ {m n p : ℕ} → m ≤ n → n ≤ p → m ≤ p
-≤-trans z≤n _ = z≤n
-≤-trans (s≤s m≤n) (s≤s n≤p) = s≤s (≤-trans m≤n n≤p)
+≤ₙ-trans : ∀ {m n p : ℕ} → m ≤ₙ n → n ≤ₙ p → m ≤ₙ p
+≤ₙ-trans z≤ₙn _ = z≤ₙn
+≤ₙ-trans (s≤ₙs m≤ₙn) (s≤ₙs n≤ₙp) = s≤ₙs (≤ₙ-trans m≤ₙn n≤ₙp)
 
-data _<_ : ℕ → ℕ → Set where
-    z<s : ∀ {n : ℕ} → zero < suc n
-    s<s : ∀ {m n : ℕ} → m < n → suc m < suc n
+data _<ₙ_ : ℕ → ℕ → Set where
+    z<ₙs : ∀ {n : ℕ} → zero <ₙ suc n
+    s<ₙs : ∀ {m n : ℕ} → m <ₙ n → suc m <ₙ suc n
 
-<→≤ : ∀ {m n : ℕ} → m < n → suc m ≤ n
-<→≤ (z<s) = s≤s z≤n
-<→≤ (s<s m<n) = s≤s (<→≤ m<n)
+<ₙ→≤ₙ : ∀ {m n : ℕ} → m <ₙ n → suc m ≤ₙ n
+<ₙ→≤ₙ (z<ₙs) = s≤ₙs z≤ₙn
+<ₙ→≤ₙ (s<ₙs m<ₙn) = s≤ₙs (<ₙ→≤ₙ m<ₙn)
 
 data Fin : ℕ → Set where
   fzero : ∀{n} → Fin (suc n)
@@ -72,8 +74,8 @@ toℕ (fsuc i) = suc (toℕ i)
 -- (m - n) _ = m ∸ n
 -- (m - zero) _ = m
 -- (suc m - suc n) p = (m - n) (inv-s≤s p)
-_-_ : (m : ℕ) → (n : Fin m) → ℕ
-m - n = m ∸ toℕ n
+_-ₙ_ : (m : ℕ) → (n : Fin m) → ℕ
+m -ₙ n = m ∸ₙ toℕ n
 
 -- Stack descriptor: (frames, displacement)
 record SD : Set where
@@ -84,21 +86,21 @@ record SD : Set where
 
 -- Stack descriptor operations    
 _+ₛ_ : SD → ℕ → SD
-⟨ S_f , S_d ⟩ +ₛ n = ⟨ S_f , S_d + n ⟩
+⟨ S_f , S_d ⟩ +ₛ n = ⟨ S_f , S_d +ₙ n ⟩
 
 _∸ₛ_ : SD → ℕ → SD
-⟨ S_f , S_d ⟩ ∸ₛ n = ⟨ S_f , S_d ∸ n ⟩
+⟨ S_f , S_d ⟩ ∸ₛ n = ⟨ S_f , S_d ∸ₙ n ⟩
 
 -- _-ₛ_ : (sd : SD) → (n : ℕ) → n ≤ SD.d sd → SD
 -- (⟨ S_f , S_d ⟩ -ₛ n) p = ⟨ S_f , (S_d - n) p ⟩
 
 _-ₛ_ : (sd : SD) → Fin (SD.d sd) → SD
-⟨ S_f , S_d ⟩ -ₛ n = ⟨ S_f , S_d - n ⟩
+⟨ S_f , S_d ⟩ -ₛ n = ⟨ S_f , S_d -ₙ n ⟩
 
 -- Stack descriptor lexicographic ordering
 data _≤ₛ_ : SD → SD → Set where
-    <-f : ∀ {S_f S'_f S_d S'_d} → S_f < S'_f → ⟨ S_f , S_d ⟩ ≤ₛ ⟨ S'_f , S'_d ⟩
-    ≤-d : ∀ {S_f S_d S'_d} → S_d ≤ S'_d → ⟨ S_f , S_d ⟩ ≤ₛ ⟨ S_f , S'_d ⟩
+    <ₙ-f : ∀ {S_f S'_f S_d S'_d} → S_f <ₙ S'_f → ⟨ S_f , S_d ⟩ ≤ₛ ⟨ S'_f , S'_d ⟩
+    ≤ₙ-d : ∀ {S_f S_d S'_d} → S_d ≤ₙ S'_d → ⟨ S_f , S_d ⟩ ≤ₛ ⟨ S_f , S'_d ⟩
 
 -- Operator
 data UnaryOp : Set where 
@@ -116,7 +118,7 @@ data RelOp : Set where
 -- Nonterminals
 -- Lefthand sides
 data L (sd : SD) : Set where
-    l-var : (sdᵛ : SD) → sdᵛ ≤ₛ sd ∸ₛ 1 → L sd
+    l-var : (sdᵛ : SD) → sdᵛ ≤ₛ sd ∸ₛ suc (zero) → L sd
     l-sbrs : L sd
 
 -- Simple righthand sides
