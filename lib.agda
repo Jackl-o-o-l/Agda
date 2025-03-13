@@ -69,6 +69,10 @@ toℕ : ∀ {m} → Fin m → ℕ
 toℕ fzero = zero
 toℕ (fsuc i) = suc (toℕ i)
 
+≤→Fin : ∀ {m n} → m ≤ n → Fin (suc n)
+≤→Fin z≤n = fzero
+≤→Fin (s≤s p) = fsuc (≤→Fin p)
+
 -- Minus
 -- _-_ : (m : ℕ) → (n : ℕ) → (n ≤ m) → ℕ
 -- (m - n) _ = m ∸ n
