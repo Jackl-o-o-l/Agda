@@ -57,6 +57,10 @@ data _<_ : ℕ → ℕ → Set where
 <→≤ (z<s) = s≤s z≤n
 <→≤ (s<s m<n) = s≤s (<→≤ m<n)
 
+<-trans : ∀ {m n p : ℕ} → m < n → n < p → m < p
+<-trans z<s (s<s _) = z<s
+<-trans (s<s m<n) (s<s n<p) = s<s (<-trans m<n n<p)
+
 data Fin : ℕ → Set where
   fzero : ∀{n} → Fin (suc n)
   fsuc : ∀{n} → (i : Fin n) → Fin (suc n)
@@ -70,5 +74,5 @@ toℕ (fsuc i) = suc (toℕ i)
 -- (m - n) _ = m ∸ n
 -- (m - zero) _ = m
 -- (suc m - suc n) p = (m - n) (inv-s≤s p)
-_-_ : (m : ℕ) → (n : Fin m) → ℕ
+_-_ : (m : ℕ) → (n : Fin (suc m)) → ℕ
 m - n = m ∸ toℕ n
