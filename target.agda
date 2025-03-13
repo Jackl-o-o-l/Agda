@@ -23,13 +23,23 @@ _∸ₛ_ : SD → ℕ → SD
 -- _-ₛ_ : (sd : SD) → (n : ℕ) → n ≤ SD.d sd → SD
 -- (⟨ S_f , S_d ⟩ -ₛ n) p = ⟨ S_f , (S_d - n) p ⟩
 
-_-ₛ_ : (sd : SD) → Fin (SD.d sd) → SD
+_-ₛ_ : (sd : SD) → Fin (suc (SD.d sd)) → SD
 ⟨ S_f , S_d ⟩ -ₛ n = ⟨ S_f , S_d - n ⟩
 
 -- Stack descriptor lexicographic ordering
 data _≤ₛ_ : SD → SD → Set where
     <-f : ∀ {S_f S'_f S_d S'_d} → S_f < S'_f → ⟨ S_f , S_d ⟩ ≤ₛ ⟨ S'_f , S'_d ⟩
     ≤-d : ∀ {S_f S_d S'_d} → S_d ≤ S'_d → ⟨ S_f , S_d ⟩ ≤ₛ ⟨ S_f , S'_d ⟩
+
+≤ₛ-refl : ∀{sd : SD} → sd ≤ₛ sd
+≤ₛ-refl {⟨ f , d ⟩} = ≤-d ≤-refl
+
+≤ₛ-trans : ∀{sd sd' sd'' : SD} → sd ≤ₛ sd' → sd' ≤ₛ sd'' → sd ≤ₛ sd''
+≤ₛ-trans (<-f f<f') (≤-d _) =  <-f f<f'
+≤ₛ-trans (<-f f<f') (<-f f'<f'') = <-f (<-trans f<f' f'<f'')
+≤ₛ-trans (≤-d _) (<-f f'<f'') = <-f f'<f''
+≤ₛ-trans (≤-d d≤d') (≤-d d'≤d'') = ≤-d (≤-trans d≤d' d'≤d'')
+
 
 -- Operator
 data UnaryOp : Set where 
@@ -65,9 +75,9 @@ data R (sd : SD) : Set where
 data I (sd : SD) : Set where
     stop : I sd
     assign_inc : (δ : ℕ) → L (sd +ₛ δ) → R sd → I (sd +ₛ δ) → I sd
-    assign_dec : (δ : Fin (SD.d sd)) → L (sd -ₛ δ) → R sd → I (sd -ₛ δ)  → I sd
+    assign_dec : (δ : Fin (suc (SD.d sd))) → L (sd -ₛ δ) → R sd → I (sd -ₛ δ)  → I sd
     if-then-else_inc : (δ : ℕ) → S sd → RelOp → S sd → I (sd +ₛ δ) → I (sd +ₛ δ) → I sd
-    if-then-else_dec : (δ : Fin (SD.d sd)) → S sd → RelOp → S sd → I (sd -ₛ δ) → I (sd -ₛ δ) → I sd
+    if-then-else_dec : (δ : Fin (suc (SD.d sd))) → S sd → RelOp → S sd → I (sd -ₛ δ) → I (sd -ₛ δ) → I sd
     adjustdisp_inc : (δ : ℕ) → I (sd +ₛ δ) → I sd
-    adjustdisp_dec : (δ : Fin (SD.d sd)) → I (sd -ₛ δ) → I sd
+    adjustdisp_dec : (δ : Fin (suc (SD.d sd))) → I (sd -ₛ δ) → I sd
     popto : (sd' : SD) → sd' ≤ₛ sd → I sd' → I sd
