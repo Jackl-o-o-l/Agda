@@ -1,6 +1,6 @@
 module source where
 
-open import Data.Integer
+open import lib
 
 -- Operator precedence and associativity
 infix 1 _≤:_
