@@ -60,22 +60,32 @@ get-var (S x) (γ , _) = get-var x γ
 fmap-⇒ : ∀ {P Q sd sd'} → (P ⇒ₛ Q) sd → sd ≤ₛ sd' → (P ⇒ₛ Q) sd'
 fmap-⇒ θ p p' x = θ (≤ₛ-trans p p') x
 
+
+-ₛ≡ : ∀ {S_f S_d S_d' n} → (p : S_d' - n ≡ S_d) → ⟨ S_f , S_d ⟩ ≡ ⟨ S_f , S_d' ⟩ -ₛ n
+-ₛ≡ {S_f} {S_d} {S_d'} {n} p = cong (λ x → ⟨ S_f , x ⟩) (sym p)
+
 fmap-Compl : ∀ {sd sd'} → Compl sd → sd ≤ₛ sd' → Compl sd'
 fmap-Compl {sd} c (<-f f<f') = popto sd (<-f f<f') c
-fmap-Compl {⟨ _ , d ⟩} {⟨ _ , d' ⟩} c (≤-d d≤d') = adjustdisp_dec (≤→Fin (-→≤ {d'} {≤→Fin d≤d'}) ) (sub I {!   !} c)
+fmap-Compl {⟨ f , d ⟩} {⟨ f , d' ⟩} c (≤-d d≤d') = 
+    adjustdisp-dec (≤→Fin (-→≤ {d'} {≤→Fin d≤d'}) ) (sub I ((-ₛ≡ {n = ≤→Fin (-→≤ {d'} {≤→Fin d≤d'})} (n-_n-m≡m d d' d≤d'))) c)
 
--- fmap-× : ∀ {P Q sd sd'} → (P ×ₛ Q) sd → sd ≤ₛ sd' → (P ×ₛ Q) sd'
 
 fmap-A : ∀ {A sd sd'} → ⟦ A ⟧ty sd → sd ≤ₛ sd' → ⟦ A ⟧ty sd'
-fmap-A {comm} c p i = {!   !}
-fmap-A {intexp} = {!   !}
-fmap-A {intacc} = {!   !}
-fmap-A {intvar} = {!   !}
+fmap-A {comm}  = fmap-⇒ {Compl} {Compl}
+fmap-A {intexp} = fmap-⇒ {Intcompl} {Compl}
+fmap-A {intacc} = fmap-⇒ {Compl} {Intcompl}
+fmap-A {intvar} ( e , a ) p = ( fmap-A {intexp} e p , fmap-A {intacc} a p )
 fmap-A {A ⇒ B} = fmap-⇒ {⟦ A ⟧ty} {⟦ B ⟧ty}
 
 fmap-Γ : ∀ {Γ sd sd'} → ⟦ Γ ⟧ctx sd → sd ≤ₛ sd' → ⟦ Γ ⟧ctx sd'
 fmap-Γ {·} unit _ = unit
 fmap-Γ {Γ , A} (γ , a) p = fmap-Γ γ p , fmap-A {A} a p
+
+
+use-temp : ∀ {sd sd'} → (β : Intcompl sd) → sd ≤ₛ sd' → (r : R sd') → I sd'
+use-temp β p (r-s s) = β p (r-s s)
+use-temp β p (r-unary uop s) = assign-inc {!   !} {!   !} {!   !} {!   !}
+use-temp β p (r-binary s₁ bop s₂) = {!   !}
 
 
 ⟦_⟧ : ∀ {Γ A} → (e : Γ ⊢ A) → (sd : SD) → ⟦ Γ ⟧ctx sd → ⟦ A ⟧ty sd
@@ -85,5 +95,5 @@ fmap-Γ {Γ , A} (γ , a) p = fmap-Γ γ p , fmap-A {A} a p
 ⟦ Skip ⟧ _ _ _ γ = γ
 ⟦ Seq c₁ c₂ ⟧ sd γ sd' p = ⟦ c₁ ⟧ sd γ sd' (⟦ c₂ ⟧ sd γ sd' p)
 ⟦ Lit i ⟧ _ _ _ κ = κ ≤ₛ-refl (r-s (s-lit i))
-⟦ Neg e ⟧ sd γ p κ = {!   !} 
+⟦ Neg e ⟧ sd γ p κ = ⟦ e ⟧ sd γ p (use-temp λ p r → κ p (r-unary UNeg {!   !})) 
 ⟦ Plus e e₁ ⟧ _ γ = {!   !} 

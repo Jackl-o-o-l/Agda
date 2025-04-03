@@ -90,31 +90,66 @@ data _<_ : ℕ → ℕ → Set where
 <-trans z<s (s<s _) = z<s
 <-trans (s<s m<n) (s<s n<p) = s<s (<-trans m<n n<p)
 
--- here tried to make p implicit, but agda fails to infer the type for proof of n-n≡0
-_-_ : (n : ℕ) → (m : ℕ) → (p : m ≤ n) → ℕ
-(n - zero) (z≤n) = n
-(suc n - suc m) (s≤s m≤n) = (n - m) m≤n
+data Fin : ℕ → Set where
+  fzero : ∀ {n} → Fin (suc n)
+  fsuc : ∀ {n} → Fin n → Fin (suc n)
 
--→≤ : ∀ {n m} → {m≤n : m ≤ n} → (n - m) m≤n ≤ n
--→≤ {n} {zero} {z≤n} = ≤-refl
--→≤ {suc m} {suc n} {s≤s m≤n} = ≤-trans ((-→≤ {m} {n})) (n≤suc_n {m})
+toℕ : ∀ {m} → Fin m → ℕ
+toℕ fzero = zero
+toℕ (fsuc i) = suc (toℕ i)
 
-n-n≡0 : ∀ {n} → (n - n) (≤-refl {n}) ≡ 0
+-- max-Fin : ∀ {m} → Fin (suc m)
+-- max-Fin {zero} = fzero
+-- max-Fin {suc m} = fsuc max-Fin
+
+-- toℕ-max-Fin : ∀ {n} → toℕ (max-Fin {n}) ≡ n
+-- toℕ-max-Fin {zero} = refl
+-- toℕ-max-Fin {suc n} = cong suc toℕ-max-Fin
+
+≤→Fin : ∀ {m n} → m ≤ n → Fin (suc n)
+≤→Fin z≤n = fzero
+≤→Fin (s≤s p) = fsuc (≤→Fin p)
+
+toℕ-≤→Fin : ∀ {m n} → (m≤n : m ≤ n) → toℕ (≤→Fin m≤n) ≡ m
+toℕ-≤→Fin z≤n = refl
+toℕ-≤→Fin (s≤s m≤n) = cong suc (toℕ-≤→Fin m≤n)
+
+-- max-Fin≡≤-refl→Fin : ∀ {n} →  max-Fin {n} ≡ ≤→Fin (≤-refl {n})
+-- max-Fin≡≤-refl→Fin {zero} = refl
+-- max-Fin≡≤-refl→Fin {suc n} = cong fsuc max-Fin≡≤-refl→Fin
+
+-- Minus
+-- _-_ : (m : ℕ) → (n : ℕ) → (n ≤ m) → ℕ
+-- (m - n) _ = m ∸ n
+-- (m - zero) _ = m
+-- (suc m - suc n) p = (m - n) (inv-s≤s p)
+-- _-_ : (m : ℕ) → (n : Fin (suc m)) → ℕ
+-- m - n = m ∸ toℕ n
+_-_ : (m : ℕ) → Fin (suc m) → ℕ
+m - fzero = m
+suc m - fsuc n = m - n
+
+-- -→≤ : ∀{m : ℕ} → ∀{n : Fin (suc m)} → m - n ≤ m
+-- -→≤ {m} {n} = ∸-≤ {m} {toℕ n}
+-→≤ : ∀ {m} → ∀ {n : Fin (suc m)} → m - n ≤ m
+-→≤ {m} {fzero} = ≤-refl
+-→≤ {suc m} {fsuc n} = ≤-trans ((-→≤ {m} {n})) (n≤suc_n {m})
+
+-- n-n≡0 : ∀{n : ℕ} → n - (max-fin {n}) ≡ 0
+-- n-n≡0 {n} = subst (λ m → n ∸ m ≡ 0) (sym toℕ-max-fin) (n∸n≡0 {n})
+-- n-n≡0 : ∀{n} → n - (max-Fin {n}) ≡ 0
+-- n-n≡0 {zero} = refl
+-- n-n≡0 {suc n} = n-n≡0 {n}
+
+n-n≡0 : ∀ {n} → n - (≤→Fin (≤-refl {n})) ≡ 0
 n-n≡0 {zero} = refl
 n-n≡0 {suc n} = n-n≡0 {n}
 
--suc : ∀ {n m} → {m≤n : m ≤ n} → suc ((n - m) m≤n) ≡ (suc n - m) (≤-trans m≤n n≤suc_n)
+-suc : ∀ {n m} → {m≤n : m ≤ n} → suc (n - ≤→Fin m≤n) ≡ suc n - ≤→Fin (≤-trans m≤n n≤suc_n)
 -suc {_} {zero} {z≤n} = refl
 -suc {suc n} {suc m} {s≤s m≤n} = -suc {n} {m} {m≤n}
 
-n-_n-m≡m : ∀ {m n} → {m≤n : m ≤ n} → (n - ((n - m) m≤n)) (-→≤ {n} {m}) ≡ m 
-n-_n-m≡m {zero} {n} {z≤n} = n-n≡0 {n}
-n-_n-m≡m {suc m} {suc n} {s≤s m≤n} = trans (sym (-suc {n} {(n - m) m≤n})) (cong suc (n-_n-m≡m {m} {n} {m≤n}))
 
--- -suc : ∀ {m n} → {m≤n : m ≤ n} → suc (n - ≤→Fin m≤n) ≡ suc n - ≤→Fin (≤-trans m≤n n≤suc_n)
--- -suc {zero} {_} {z≤n} = refl
--- -suc {suc m} {suc n} {s≤s m≤n} = -suc {m} {n} {m≤n}
-
--- n-_n-m≡m : ∀ {m n} → {m≤n : m ≤ n} → n - (≤→Fin (-→≤ {n} {≤→Fin m≤n})) ≡ m
--- n-_n-m≡m {zero} {n} {z≤n} = n-n≡0 {n}
--- n-_n-m≡m {suc m} {suc n} {s≤s m≤n}  = trans (sym (-suc {n} {n - ≤→Fin m≤n} { -→≤ {n} {≤→Fin m≤n} })) (cong suc (n-_n-m≡m {m} {n} {m≤n}))
+n-_n-m≡m : ∀ m → ∀ n → (m≤n : m ≤ n) → n - (≤→Fin (-→≤ {n} {≤→Fin m≤n})) ≡ m
+n-_n-m≡m zero n z≤n = n-n≡0 {n}
+n-_n-m≡m (suc m) (suc n) (s≤s m≤n) = trans (sym (-suc {n} {n - ≤→Fin m≤n} { -→≤ {n} {≤→Fin m≤n} })) (cong suc (n-_n-m≡m m n m≤n))
