@@ -145,11 +145,17 @@ n-n≡0 : ∀ {n} → n - (≤→Fin (≤-refl {n})) ≡ 0
 n-n≡0 {zero} = refl
 n-n≡0 {suc n} = n-n≡0 {n}
 
+-- suc (n - m) ≡ suc n - m
 -suc : ∀ {n m} → {m≤n : m ≤ n} → suc (n - ≤→Fin m≤n) ≡ suc n - ≤→Fin (≤-trans m≤n n≤suc_n)
 -suc {_} {zero} {z≤n} = refl
 -suc {suc n} {suc m} {s≤s m≤n} = -suc {n} {m} {m≤n}
 
 
-n-_n-m≡m : ∀ m → ∀ n → (m≤n : m ≤ n) → n - (≤→Fin (-→≤ {n} {≤→Fin m≤n})) ≡ m
-n-_n-m≡m zero n z≤n = n-n≡0 {n}
-n-_n-m≡m (suc m) (suc n) (s≤s m≤n) = trans (sym (-suc {n} {n - ≤→Fin m≤n} { -→≤ {n} {≤→Fin m≤n} })) (cong suc (n-_n-m≡m m n m≤n))
+n-[n-m]≡m : ∀ m → ∀ n → (m≤n : m ≤ n) → n - (≤→Fin (-→≤ {n} {≤→Fin m≤n})) ≡ m
+n-[n-m]≡m zero n z≤n = n-n≡0 {n}
+n-[n-m]≡m (suc m) (suc n) (s≤s m≤n) = trans (sym (-suc {n} {n - ≤→Fin m≤n} { -→≤ {n} {≤→Fin m≤n} })) (cong suc (n-[n-m]≡m m n m≤n))
+
+-- m ≤ n → m - p ≤ n - p
+sub-monoʳ-≤ : ∀ {p m n} → (p≤m : p ≤ m) → (m≤n : m ≤ n) → m - (≤→Fin p≤m) ≤ n - (≤→Fin (≤-trans p≤m m≤n))
+sub-monoʳ-≤ z≤n m≤n = m≤n
+sub-monoʳ-≤ (s≤s p≤m) (s≤s m≤n) = sub-monoʳ-≤ p≤m m≤n
