@@ -1,7 +1,7 @@
 module lib where
 
 infix 4 _≤_ _<_ _≡_
-infixl 6 _+_ _∸_ _+_ _-_
+infixl 6 _+_ _∸_ _-_
 infixl 7 _*_
 
 data ℕ : Set where

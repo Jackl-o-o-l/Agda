@@ -23,8 +23,8 @@ _∸ₛ_ : SD → ℕ → SD
 -- _-ₛ_ : (sd : SD) → (n : ℕ) → n ≤ SD.d sd → SD
 -- (⟨ S_f , S_d ⟩ -ₛ n) p = ⟨ S_f , (S_d - n) p ⟩
 
-_-ₛ_ : (sd : SD) → Fin (suc (SD.d sd)) → SD
-⟨ S_f , S_d ⟩ -ₛ n = ⟨ S_f , S_d - n ⟩
+_-ₛ_ : (sd : SD) → (n : ℕ) → (p : n ≤ SD.d sd) → SD
+(⟨ S_f , S_d ⟩ -ₛ n) p = ⟨ S_f , (S_d - n) p ⟩
 
 -- Stack descriptor lexicographic ordering
 data _≤ₛ_ : SD → SD → Set where
@@ -74,10 +74,10 @@ data R (sd : SD) : Set where
 -- Instruction sequences
 data I (sd : SD) : Set where
     stop : I sd
-    assign_inc : (δ : ℕ) → L (sd +ₛ δ) → R sd → I (sd +ₛ δ) → I sd
-    assign_dec : (δ : Fin (suc (SD.d sd))) → L (sd -ₛ δ) → R sd → I (sd -ₛ δ)  → I sd
-    if-then-else_inc : (δ : ℕ) → S sd → RelOp → S sd → I (sd +ₛ δ) → I (sd +ₛ δ) → I sd
-    if-then-else_dec : (δ : Fin (suc (SD.d sd))) → S sd → RelOp → S sd → I (sd -ₛ δ) → I (sd -ₛ δ) → I sd
-    adjustdisp_inc : (δ : ℕ) → I (sd +ₛ δ) → I sd
-    adjustdisp_dec : (δ : Fin (suc (SD.d sd))) → I (sd -ₛ δ) → I sd
+    assign-inc : (δ : ℕ) → L (sd +ₛ δ) → R sd → I (sd +ₛ δ) → I sd
+    assign-dec : (δ : ℕ) → (p : δ ≤ SD.d sd) → L ((sd -ₛ δ) p) → R sd → I ((sd -ₛ δ) p)  → I sd
+    if-then-else-inc : (δ : ℕ) → S sd → RelOp → S sd → I (sd +ₛ δ) → I (sd +ₛ δ) → I sd
+    if-then-else-dec : (δ : ℕ) → (p : δ ≤ SD.d sd) → S sd → RelOp → S sd → I ((sd -ₛ δ) p) → I ((sd -ₛ δ) p) → I sd
+    adjustdisp-inc : (δ : ℕ) → I (sd +ₛ δ) → I sd
+    adjustdisp-dec : (δ : ℕ) → (p : δ ≤ SD.d sd) → I ((sd -ₛ δ) p) → I sd
     popto : (sd' : SD) → sd' ≤ₛ sd → I sd' → I sd
