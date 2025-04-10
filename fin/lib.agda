@@ -69,9 +69,20 @@ inv-s≤s (s≤s m≤n) = m≤n
 ≤-trans z≤n _ = z≤n
 ≤-trans (s≤s m≤n) (s≤s n≤p) = s≤s (≤-trans m≤n n≤p)
 
-n≤suc_n : ∀ {n : ℕ} → n ≤ suc n
-n≤suc_n {zero} = z≤n
-n≤suc_n {suc n} = s≤s n≤suc_n
+n≤suc-n : ∀ {n : ℕ} → n ≤ suc n
+n≤suc-n {zero} = z≤n
+n≤suc-n {suc n} = s≤s n≤suc-n
+
+data Order : ℕ → ℕ → Set where
+    leq : ∀ {m n : ℕ} → m ≤ n → Order m n
+    geq : ∀ {m n : ℕ} → n ≤ m → Order m n
+
+≤-compare : ∀ {m n : ℕ} → Order m n
+≤-compare {zero} {n} = leq z≤n
+≤-compare {suc m} {zero} = geq z≤n
+≤-compare {suc m} {suc n} with ≤-compare {m} {n}
+... | leq m≤n = leq (s≤s m≤n)
+... | geq n≤m = geq (s≤s n≤m)
 
 -- ∸-≤ : ∀ {m n} → m ∸ n ≤ m
 -- ∸-≤ {m} {zero} = ≤-refl
@@ -82,9 +93,12 @@ data _<_ : ℕ → ℕ → Set where
     z<s : ∀ {n : ℕ} → zero < suc n
     s<s : ∀ {m n : ℕ} → m < n → suc m < suc n
 
-<→≤ : ∀ {m n : ℕ} → m < n → suc m ≤ n
-<→≤ (z<s) = s≤s z≤n
-<→≤ (s<s m<n) = s≤s (<→≤ m<n)
+<→s≤ : ∀ {m n : ℕ} → m < n → suc m ≤ n
+<→s≤ (z<s) = s≤s z≤n
+<→s≤ (s<s m<n) = s≤s (<→s≤ m<n)
+
+<→≤ : ∀ {m n : ℕ} → m < n → m ≤ n
+<→≤ m<n = ≤-trans n≤suc-n (<→s≤ m<n)
 
 <-trans : ∀ {m n p : ℕ} → m < n → n < p → m < p
 <-trans z<s (s<s _) = z<s
@@ -133,7 +147,7 @@ suc m - fsuc n = m - n
 -- -→≤ {m} {n} = ∸-≤ {m} {toℕ n}
 -→≤ : ∀ {m} → ∀ {n : Fin (suc m)} → m - n ≤ m
 -→≤ {m} {fzero} = ≤-refl
--→≤ {suc m} {fsuc n} = ≤-trans ((-→≤ {m} {n})) (n≤suc_n {m})
+-→≤ {suc m} {fsuc n} = ≤-trans ((-→≤ {m} {n})) (n≤suc-n {m})
 
 -- n-n≡0 : ∀{n : ℕ} → n - (max-fin {n}) ≡ 0
 -- n-n≡0 {n} = subst (λ m → n ∸ m ≡ 0) (sym toℕ-max-fin) (n∸n≡0 {n})
@@ -146,7 +160,7 @@ n-n≡0 {zero} = refl
 n-n≡0 {suc n} = n-n≡0 {n}
 
 -- suc (n - m) ≡ suc n - m
--suc : ∀ {n m} → {m≤n : m ≤ n} → suc (n - ≤→Fin m≤n) ≡ suc n - ≤→Fin (≤-trans m≤n n≤suc_n)
+-suc : ∀ {n m} → {m≤n : m ≤ n} → suc (n - ≤→Fin m≤n) ≡ suc n - ≤→Fin (≤-trans m≤n n≤suc-n)
 -suc {_} {zero} {z≤n} = refl
 -suc {suc n} {suc m} {s≤s m≤n} = -suc {n} {m} {m≤n}
 
