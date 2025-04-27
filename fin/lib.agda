@@ -73,6 +73,10 @@ n≤suc-n : ∀ {n : ℕ} → n ≤ suc n
 n≤suc-n {zero} = z≤n
 n≤suc-n {suc n} = s≤s n≤suc-n
 
++→≤ : ∀ {m n : ℕ} → m ≤ m + n
++→≤ {zero} {n} = z≤n
++→≤ {suc m} {n} = s≤s (+→≤ {m} {n})
+
 data Order : ℕ → ℕ → Set where
     leq : ∀ {m n : ℕ} → m ≤ n → Order m n
     geq : ∀ {m n : ℕ} → n ≤ m → Order m n
@@ -173,3 +177,9 @@ n-[n-m]≡m (suc m) (suc n) (s≤s m≤n) = trans (sym (-suc {n} {n - ≤→Fin 
 sub-monoʳ-≤ : ∀ {p m n} → (p≤m : p ≤ m) → (m≤n : m ≤ n) → m - (≤→Fin p≤m) ≤ n - (≤→Fin (≤-trans p≤m m≤n))
 sub-monoʳ-≤ z≤n m≤n = m≤n
 sub-monoʳ-≤ (s≤s p≤m) (s≤s m≤n) = sub-monoʳ-≤ p≤m m≤n
+
+m≡n,p≤n→p≤m : ∀ {p m n} → m ≡ n → p ≤ n → p ≤ m
+m≡n,p≤n→p≤m m≡n p≤n rewrite sym m≡n = p≤n
+
+suc-d≤d'→d≤d'-[d'-[suc-d]] : ∀ {d d'} → (δ₁≤δ₂ : suc d ≤ d') → d ≤ (d' - ≤→Fin (-→≤ {d'} {≤→Fin δ₁≤δ₂}))
+suc-d≤d'→d≤d'-[d'-[suc-d]] {d} {d'} δ₁≤δ₂ = m≡n,p≤n→p≤m (n-[n-m]≡m (suc d) d' δ₁≤δ₂) (n≤suc-n {d})

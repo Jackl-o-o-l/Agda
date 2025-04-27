@@ -40,6 +40,8 @@ data _≤ₛ_ : SD → SD → Set where
 ≤ₛ-trans (≤-d _) (<-f f'<f'') = <-f f'<f''
 ≤ₛ-trans (≤-d d≤d') (≤-d d'≤d'') = ≤-d (≤-trans d≤d' d'≤d'')
 
++ₛ→≤ₛ : ∀{sd : SD} → ∀{n : ℕ} → sd ≤ₛ sd +ₛ n
++ₛ→≤ₛ = ≤-d +→≤ 
 
 -- Operator
 data UnaryOp : Set where 
@@ -57,7 +59,7 @@ data RelOp : Set where
 -- Nonterminals
 -- Lefthand sides
 data L (sd : SD) : Set where
-    l-var : (sdᵛ : SD) → sdᵛ ≤ₛ sd ∸ₛ 1 → L sd
+    l-var : (sdᵛ : SD) → sdᵛ ≤ₛ sd → L sd
     l-sbrs : L sd
 
 -- Simple righthand sides
