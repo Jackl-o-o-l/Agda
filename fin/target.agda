@@ -15,24 +15,24 @@ record SD : Set where
 
 -- Stack descriptor operations    
 _+ₛ_ : SD → ℕ → SD
-⟨ S_f , S_d ⟩ +ₛ n = ⟨ S_f , S_d + n ⟩
+⟨ f , d ⟩ +ₛ n = ⟨ f , d + n ⟩
 
 _∸ₛ_ : SD → ℕ → SD
-⟨ S_f , S_d ⟩ ∸ₛ n = ⟨ S_f , S_d ∸ n ⟩
+⟨ f , d ⟩ ∸ₛ n = ⟨ f , d ∸ n ⟩
 
 -- _-ₛ_ : (sd : SD) → (n : ℕ) → n ≤ SD.d sd → SD
 -- (⟨ S_f , S_d ⟩ -ₛ n) p = ⟨ S_f , (S_d - n) p ⟩
 
 _-ₛ_ : (sd : SD) → Fin (suc (SD.d sd)) → SD
-⟨ S_f , S_d ⟩ -ₛ n = ⟨ S_f , S_d - n ⟩
+⟨ f , d ⟩ -ₛ n = ⟨ f , d - n ⟩
 
--ₛ≡ : ∀ {S_f S_d S_d' n} → (p : S_d' - n ≡ S_d) → ⟨ S_f , S_d ⟩ ≡ ⟨ S_f , S_d' ⟩ -ₛ n
--ₛ≡ {S_f} {S_d} {S_d'} {n} p = cong (λ x → ⟨ S_f , x ⟩) (sym p)
+-ₛ≡ : ∀ {f d d' n} → (d' - n ≡ d) → ⟨ f , d ⟩ ≡ ⟨ f , d' ⟩ -ₛ n
+-ₛ≡ p rewrite p = refl
 
 -- Stack descriptor lexicographic ordering
 data _≤ₛ_ : SD → SD → Set where
-    <-f : ∀ {S_f S'_f S_d S'_d} → S_f < S'_f → ⟨ S_f , S_d ⟩ ≤ₛ ⟨ S'_f , S'_d ⟩
-    ≤-d : ∀ {S_f S_d S'_d} → S_d ≤ S'_d → ⟨ S_f , S_d ⟩ ≤ₛ ⟨ S_f , S'_d ⟩
+    <-f : ∀ {f f' d d'} → f < f' → ⟨ f , d ⟩ ≤ₛ ⟨ f' , d' ⟩
+    ≤-d : ∀ {f d d'} → d ≤ d' → ⟨ f , d ⟩ ≤ₛ ⟨ f , d' ⟩
 
 ≤ₛ-refl : ∀{sd : SD} → sd ≤ₛ sd
 ≤ₛ-refl {⟨ f , d ⟩} = ≤-d ≤-refl

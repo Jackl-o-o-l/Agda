@@ -25,8 +25,8 @@ data Context : Set where
 
 -- Variables and the lookup judgement
 data _∈_ : Type  →  Context  →  Set where
-    Z : ∀{Γ A}  →  A ∈ Γ , A
-    S : ∀{Γ A B}  →  B ∈ Γ  →  B ∈ Γ , A
+    Zero : ∀{Γ A}  →  A ∈ Γ , A
+    Suc : ∀{Γ A B}  →  B ∈ Γ  →  B ∈ Γ , A
 
 -- Terms and the typing judgement
 data _⊢_ : Context  →  Type  →  Set where
@@ -53,8 +53,8 @@ data Value : ∀{Γ A}  →  Γ ⊢ A  →  Set where
 
 -- Renaming
 ext : ∀{Γ Δ}  →  (∀{A}  →  A ∈ Γ  →  A ∈ Δ)  →  (∀{A B}  →  B ∈ Γ , A  →  B ∈ Δ , A)
-ext ρ Z = Z
-ext ρ (S x) = S (ρ x)
+ext ρ Zero = Zero
+ext ρ (Suc x) = Suc (ρ x)
 
 rename : ∀{Γ Δ}  →  (∀{A}  →  A ∈ Γ  →  A ∈ Δ)  →  (∀{A}  →  Γ ⊢ A  →  Δ ⊢ A)
 rename ρ (Var x) = Var (ρ x)
@@ -68,8 +68,8 @@ rename ρ (Plus I₁ I₂) = Plus (rename ρ I₁) (rename ρ I₂)
 
 -- Simultaneous substitution
 exts : ∀{Γ Δ}  →  (∀{A}  →  A ∈ Γ  →  Δ ⊢ A)  →  (∀{A B}  →  B ∈ Γ , A  →  Δ , A ⊢ B)
-exts σ Z = Var Z
-exts σ (S x) = rename S (σ x)
+exts σ Zero = Var Zero
+exts σ (Suc x) = rename Suc (σ x)
 
 subst : ∀{Γ Δ}  →  (∀{A}  →  A ∈ Γ  →  Δ ⊢ A)  →  (∀{A}  →  Γ ⊢ A  →  Δ ⊢ A)
 subst σ (Var x) = σ x
@@ -86,8 +86,8 @@ _[_] : ∀{Γ A B}  →  Γ , B ⊢ A  →  Γ ⊢ B  →  Γ ⊢ A
 _[_] {Γ} {A} {B} N M = subst {Γ , B} {Γ} σ {A} N
     where
     σ : ∀ {A}  →  A ∈ Γ , B  →  Γ ⊢ A
-    σ Z = M
-    σ (S x) = Var x
+    σ Zero = M
+    σ (Suc x) = Var x
 
 -- Reduction
 data _⟶_ : ∀{Γ A}  →  (Γ ⊢ A)  →  (Γ ⊢ A)  →  Set where
