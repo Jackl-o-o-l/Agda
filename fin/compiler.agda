@@ -67,7 +67,7 @@ fmap-⇒ θ p p' x = θ (≤ₛ-trans p p') x
 fmap-Compl : ∀ {sd sd'} → Compl sd → sd ≤ₛ sd' → Compl sd'
 fmap-Compl {sd} c (<-f f<f') = popto sd (<-f f<f') c
 fmap-Compl {⟨ f , d ⟩} {⟨ f , d' ⟩} c (≤-d d≤d') = 
-    adjustdisp-dec (≤→Fin (-→≤ {d'} {≤→Fin d≤d'}) ) (sub I ((-ₛ≡ {n = ≤→Fin (-→≤ {d'} {≤→Fin d≤d'})} (n-[n-m]≡m d d' d≤d'))) c)
+    adjustdisp-dec (≤→Fin (-→≤ {d'} {≤→Fin d≤d'}) ) (sub I ((-ₛ≡ {n = ≤→Fin (-→≤ {d'} {≤→Fin d≤d'})} (n-[n-m]≡m d≤d'))) c)
 
 
 fmap-L : ∀ {sd sd'} → L sd → sd ≤ₛ sd' → L sd'
