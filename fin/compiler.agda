@@ -52,17 +52,10 @@ get-var : ∀ {Γ A sd} → A ∈ Γ → ⟦ Γ ⟧ctx sd → ⟦ A ⟧ty sd
 get-var Zero     (_ , a) = a
 get-var (Suc x) (γ , _) = get-var x γ
 
-
--- get-num : ∀ {Γ} → (e : Γ ⊢ source.ℕ) → target.ℕ
--- get-num Zero = target.zero
--- get-num (Suc m) = target.suc (get-num m)
-
+-- Functorality
 fmap-⇒ : ∀ {P Q sd sd'} → (P ⇒ₛ Q) sd → sd ≤ₛ sd' → (P ⇒ₛ Q) sd'
 fmap-⇒ θ p p' x = θ (≤ₛ-trans p p') x
 
-
--ₛ≡ : ∀ {S_f S_d S_d' n} → (p : S_d' - n ≡ S_d) → ⟨ S_f , S_d ⟩ ≡ ⟨ S_f , S_d' ⟩ -ₛ n
--ₛ≡ {S_f} {S_d} {S_d'} {n} p = cong (λ x → ⟨ S_f , x ⟩) (sym p)
 
 fmap-Compl : ∀ {sd sd'} → Compl sd → sd ≤ₛ sd' → Compl sd'
 fmap-Compl {sd} c (<-f f<f') = popto sd (<-f f<f') c
