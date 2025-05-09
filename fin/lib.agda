@@ -1,7 +1,7 @@
 module lib where
 
 infix 4 _≤_ _<_ _≡_
-infixl 6 _+_ _∸_ _-_
+infixl 6 _+_ _∸_ _–_
 infixl 7 _*_
 
 data ℕ : Set where
@@ -143,15 +143,15 @@ toℕ-≤→Fin (s≤s m≤n) = cong suc (toℕ-≤→Fin m≤n)
 -- (suc m - suc n) p = (m - n) (inv-s≤s p)
 -- _-_ : (m : ℕ) → (n : Fin (suc m)) → ℕ
 -- m - n = m ∸ toℕ n
-_-_ : (m : ℕ) → Fin (suc m) → ℕ
-m - fzero = m
-suc m - fsuc n = m - n
+_–_ : (m : ℕ) → Fin (suc m) → ℕ
+m – fzero = m
+suc m – fsuc n = m – n
 
 -- -→≤ : ∀{m : ℕ} → ∀{n : Fin (suc m)} → m - n ≤ m
 -- -→≤ {m} {n} = ∸-≤ {m} {toℕ n}
--→≤ : ∀ {m} → ∀ {n : Fin (suc m)} → m - n ≤ m
--→≤ {m} {fzero} = ≤-refl
--→≤ {suc m} {fsuc n} = ≤-trans ((-→≤ {m} {n})) (n≤suc-n {m})
+–→≤ : ∀ {m} → ∀ {n : Fin (suc m)} → m – n ≤ m
+–→≤ {m} {fzero} = ≤-refl
+–→≤ {suc m} {fsuc n} = ≤-trans ((–→≤ {m} {n})) (n≤suc-n {m})
 
 -- n-n≡0 : ∀{n : ℕ} → n - (max-fin {n}) ≡ 0
 -- n-n≡0 {n} = subst (λ m → n ∸ m ≡ 0) (sym toℕ-max-fin) (n∸n≡0 {n})
@@ -159,24 +159,26 @@ suc m - fsuc n = m - n
 -- n-n≡0 {zero} = refl
 -- n-n≡0 {suc n} = n-n≡0 {n}
 
-n-n≡0 : ∀ {n} → n - (≤→Fin (≤-refl {n})) ≡ 0
-n-n≡0 {zero} = refl
-n-n≡0 {suc n} = n-n≡0 {n}
+n–n≡0 : ∀ {n} → n – (≤→Fin (≤-refl {n})) ≡ 0
+n–n≡0 {zero} = refl
+n–n≡0 {suc n} = n–n≡0 {n}
 
 -- suc (n - m) ≡ suc n - m
--suc : ∀ {n m} → {m≤n : m ≤ n} → suc (n - ≤→Fin m≤n) ≡ suc n - ≤→Fin (≤-trans m≤n n≤suc-n)
--suc {_} {zero} {z≤n} = refl
--suc {suc n} {suc m} {s≤s m≤n} = -suc {n} {m} {m≤n}
+–-suc : ∀ {n m} → {m≤n : m ≤ n} 
+          → suc (n – ≤→Fin m≤n) ≡ suc n – ≤→Fin (≤-trans m≤n n≤suc-n)
+–-suc {_} {zero} {z≤n} = refl
+–-suc {suc n} {suc m} {s≤s m≤n} = –-suc {n} {m} {m≤n}
 
 
-n-[n-m]≡m : ∀ {m n} → (m≤n : m ≤ n) → n - (≤→Fin (-→≤ {n} {≤→Fin m≤n})) ≡ m
-n-[n-m]≡m {zero} {n} z≤n = n-n≡0 {n}
-n-[n-m]≡m {suc m} {suc n} (s≤s m≤n) = trans (sym (-suc {n} {n - ≤→Fin m≤n} { -→≤ {n} {≤→Fin m≤n} })) (cong suc (n-[n-m]≡m {m} {n} m≤n))
+n–[n–m]≡m : ∀ {m n} → (m≤n : m ≤ n) 
+                → n – (≤→Fin (–→≤ {n} {≤→Fin m≤n})) ≡ m
+n–[n–m]≡m {zero} {n} z≤n = n–n≡0 {n}
+n–[n–m]≡m {suc m} {suc n} (s≤s m≤n) = trans (sym (–-suc {n} {n – ≤→Fin m≤n} { –→≤ {n} {≤→Fin m≤n} })) (cong suc (n–[n–m]≡m {m} {n} m≤n))
 
 -- m ≤ n → m - p ≤ n - p
-sub-monoʳ-≤ : ∀ {p m n} → (p≤m : p ≤ m) → (m≤n : m ≤ n) → m - (≤→Fin p≤m) ≤ n - (≤→Fin (≤-trans p≤m m≤n))
-sub-monoʳ-≤ z≤n m≤n = m≤n
-sub-monoʳ-≤ (s≤s p≤m) (s≤s m≤n) = sub-monoʳ-≤ p≤m m≤n
+–-monoʳ-≤ : ∀ {p m n} → (p≤m : p ≤ m) → (m≤n : m ≤ n) → m – (≤→Fin p≤m) ≤ n – (≤→Fin (≤-trans p≤m m≤n))
+–-monoʳ-≤ z≤n m≤n = m≤n
+–-monoʳ-≤ (s≤s p≤m) (s≤s m≤n) = –-monoʳ-≤ p≤m m≤n
 
 -- m ≡ n, p ≤ n → p ≤ m
 m≡n,p≤n→p≤m : ∀ {p m n} → m ≡ n → p ≤ n → p ≤ m
@@ -184,5 +186,5 @@ m≡n,p≤n→p≤m m≡n p≤n rewrite sym m≡n = p≤n
 
 
 -- suc d ≤ d' → d ≤ d' - (d' - (suc d))
-suc-d≤d'→d≤d'-[d'-[suc-d]] : ∀ {d d'} → (δ₁≤δ₂ : suc d ≤ d') → d ≤ (d' - ≤→Fin (-→≤ {d'} {≤→Fin δ₁≤δ₂}))
-suc-d≤d'→d≤d'-[d'-[suc-d]] {d} {d'} δ₁≤δ₂ = m≡n,p≤n→p≤m (n-[n-m]≡m δ₁≤δ₂) (n≤suc-n {d})
+suc-d≤d'→d≤d'–[d'–[suc-d]] : ∀ {d d'} → (δ₁≤δ₂ : suc d ≤ d') → d ≤ (d' – ≤→Fin (–→≤ {d'} {≤→Fin δ₁≤δ₂}))
+suc-d≤d'→d≤d'–[d'–[suc-d]] {d} {d'} δ₁≤δ₂ = m≡n,p≤n→p≤m (n–[n–m]≡m δ₁≤δ₂) (n≤suc-n {d})

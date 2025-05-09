@@ -2,7 +2,7 @@ module target where
 
 -- Operator precedence and associativity
 infix 4 _≤ₛ_
-infixl 6 _∸ₛ_ _-ₛ_
+infixl 6 _∸ₛ_ _–ₛ_
 
 open import lib
 
@@ -23,11 +23,11 @@ _∸ₛ_ : SD → ℕ → SD
 -- _-ₛ_ : (sd : SD) → (n : ℕ) → n ≤ SD.d sd → SD
 -- (⟨ S_f , S_d ⟩ -ₛ n) p = ⟨ S_f , (S_d - n) p ⟩
 
-_-ₛ_ : (sd : SD) → Fin (suc (SD.d sd)) → SD
-⟨ f , d ⟩ -ₛ n = ⟨ f , d - n ⟩
+_–ₛ_ : (sd : SD) → Fin (suc (SD.d sd)) → SD
+⟨ f , d ⟩ –ₛ n = ⟨ f , d – n ⟩
 
--ₛ≡ : ∀ {f d d' n} → (d' - n ≡ d) → ⟨ f , d ⟩ ≡ ⟨ f , d' ⟩ -ₛ n
--ₛ≡ p rewrite p = refl
+–ₛ≡ : ∀ {f d d' n} → (d' – n ≡ d) → ⟨ f , d ⟩ ≡ ⟨ f , d' ⟩ –ₛ n
+–ₛ≡ p rewrite p = refl
 
 -- Stack descriptor lexicographic ordering
 data _≤ₛ_ : SD → SD → Set where
@@ -80,9 +80,12 @@ data R (sd : SD) : Set where
 data I (sd : SD) : Set where
     stop : I sd
     assign-inc : (δ : ℕ) → L (sd +ₛ δ) → R sd → I (sd +ₛ δ) → I sd
-    assign-dec : (δ : Fin (suc (SD.d sd))) → L (sd -ₛ δ) → R sd → I (sd -ₛ δ)  → I sd
-    if-then-else-inc : (δ : ℕ) → S sd → RelOp → S sd → I (sd +ₛ δ) → I (sd +ₛ δ) → I sd
-    if-then-else-dec : (δ : Fin (suc (SD.d sd))) → S sd → RelOp → S sd → I (sd -ₛ δ) → I (sd -ₛ δ) → I sd
+    assign-dec : (δ : Fin (suc (SD.d sd))) → L (sd –ₛ δ) → R sd 
+                    → I (sd –ₛ δ) → I sd
+    if-then-else-inc : (δ : ℕ) → S sd → RelOp → S sd 
+                            → I (sd +ₛ δ) → I (sd +ₛ δ) → I sd
+    if-then-else-dec : (δ : Fin (suc (SD.d sd))) → S sd → RelOp → S sd 
+                            → I (sd –ₛ δ) → I (sd –ₛ δ) → I sd
     adjustdisp-inc : (δ : ℕ) → I (sd +ₛ δ) → I sd
-    adjustdisp-dec : (δ : Fin (suc (SD.d sd))) → I (sd -ₛ δ) → I sd
+    adjustdisp-dec : (δ : Fin (suc (SD.d sd))) → I (sd –ₛ δ) → I sd
     popto : (sd' : SD) → sd' ≤ₛ sd → I sd' → I sd
