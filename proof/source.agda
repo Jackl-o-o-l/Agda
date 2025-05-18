@@ -12,17 +12,14 @@ infixr 7 _⇒_
 
 -- Types
 data Type : Set where
-    comm : Type
-    intexp : Type
-    intacc : Type
-    intvar : Type
+    comm intexp intacc intvar : Type
     _⇒_ : Type → Type → Type
 
 -- Subtype relation
 data _≤:_ : Type → Type → Set where
     ≤:-refl : ∀{A} → A ≤: A
-    ≤:-trans : ∀{A A' A''} → A ≤: A' → A' ≤: A'' → A ≤: A''
-    ≤:-fn : ∀{A A' B B'} → A' ≤: A → B ≤: B' → A ⇒ B ≤: A' ⇒ B'
+    ≤:-trans : ∀{A A′ A″} → A ≤: A′ → A′ ≤: A″ → A ≤: A″
+    ≤:-fn : ∀{A A′ B B′} → A′ ≤: A → B ≤: B′ → A ⇒ B ≤: A′ ⇒ B′
 
     var-≤:-exp : intvar ≤: intexp
     var-≤:-acc : intvar ≤: intacc
@@ -74,17 +71,17 @@ ext ρ (Suc x) = Suc (ρ x)
 
 rename : ∀{Γ Δ} → (∀{A} → A ∈ Γ → A ∈ Δ) 
                 → (∀{A} → Γ ⊢ A → Δ ⊢ A)
-rename ρ (Var A∈Γ) = Var (ρ A∈Γ)
-rename ρ (Lambda Γ,A⊢B) = Lambda (rename (ext ρ) Γ,A⊢B)
-rename ρ (Sub Γ⊢A A≤:B) = Sub (rename ρ Γ⊢A) A≤:B
-rename ρ (App Γ⊢A Γ⊢B) = App (rename ρ Γ⊢A) (rename ρ Γ⊢B)
+rename ρ (Var a) = Var (ρ a)
+rename ρ (Lambda f) = Lambda (rename (ext ρ) f)
+rename ρ (Sub a A≤:B) = Sub (rename ρ a) A≤:B
+rename ρ (App f e) = App (rename ρ f) (rename ρ e)
 rename ρ Skip = Skip
-rename ρ (Seq Γ⊢c₁ Γ⊢c₂) = Seq (rename ρ Γ⊢c₁) (rename ρ Γ⊢c₂)
-rename ρ (NewVar Γ⊢c) = NewVar (rename (ext ρ) Γ⊢c)
-rename ρ (Assign Γ⊢i Γ⊢e) = Assign (rename ρ Γ⊢i) (rename ρ Γ⊢e)
-rename ρ (Lit Γ⊢i) = Lit Γ⊢i
-rename ρ (Neg Γ⊢i) = Neg (rename ρ Γ⊢i)
-rename ρ (Plus Γ⊢i₁ Γ⊢i₂) = Plus (rename ρ Γ⊢i₁) (rename ρ Γ⊢i₂)
+rename ρ (Seq c₁ c₂) = Seq (rename ρ c₁) (rename ρ c₂)
+rename ρ (NewVar c) = NewVar (rename (ext ρ) c)
+rename ρ (Assign a e) = Assign (rename ρ a) (rename ρ e)
+rename ρ (Lit i) = Lit i
+rename ρ (Neg e) = Neg (rename ρ e)
+rename ρ (Plus e₁ e₂) = Plus (rename ρ e₁) (rename ρ e₂)
 
 -- Simultaneous substitution
 exts : ∀{Γ Δ} → (∀{A} → A ∈ Γ → Δ ⊢ A) 
@@ -94,17 +91,17 @@ exts σ (Suc x) = rename Suc (σ x)
 
 subst : ∀{Γ Δ} → (∀{A} → A ∈ Γ → Δ ⊢ A)
                → (∀{A} → Γ ⊢ A → Δ ⊢ A)
-subst σ (Var A∈Γ) = σ A∈Γ
-subst σ (Sub Γ⊢A A≤:B) = Sub (subst σ Γ⊢A) A≤:B
-subst σ (Lambda Γ,A⊢B) = Lambda (subst (exts σ) Γ,A⊢B)
-subst σ (App Γ⊢A Γ⊢B) = App (subst σ Γ⊢A) (subst σ Γ⊢B)
+subst σ (Var a) = σ a
+subst σ (Sub a A≤:B) = Sub (subst σ a) A≤:B
+subst σ (Lambda f) = Lambda (subst (exts σ) f)
+subst σ (App f e) = App (subst σ f) (subst σ e)
 subst σ Skip = Skip
-subst σ (Seq Γ⊢c₁ Γ⊢c₂) = Seq (subst σ Γ⊢c₁) (subst σ Γ⊢c₂)
-subst σ (NewVar Γ⊢c) = NewVar (subst (exts σ) Γ⊢c)
-subst σ (Assign Γ⊢i Γ⊢e) = Assign (subst σ Γ⊢i) (subst σ Γ⊢e)
-subst σ (Lit Γ⊢i) = Lit Γ⊢i
-subst σ (Neg Γ⊢i) = Neg (subst σ Γ⊢i)
-subst σ (Plus Γ⊢i₁ Γ⊢i₂) = Plus (subst σ Γ⊢i₁) (subst σ Γ⊢i₂)
+subst σ (Seq c₁ c₂) = Seq (subst σ c₁) (subst σ c₂)
+subst σ (NewVar c) = NewVar (subst (exts σ) c)
+subst σ (Assign a e) = Assign (subst σ a) (subst σ e)
+subst σ (Lit i) = Lit i
+subst σ (Neg e) = Neg (subst σ e)
+subst σ (Plus e₁ e₂) = Plus (subst σ e₁) (subst σ e₂)
 
 -- Single substitution
 _[_] : ∀{Γ A B} → Γ , B ⊢ A → Γ ⊢ B → Γ ⊢ A
@@ -116,9 +113,9 @@ _[_] {Γ} {A} {B} N M = subst {Γ , B} {Γ} σ {A} N
 
 -- Reduction
 data _⟶_ : ∀{Γ A} → (Γ ⊢ A) → (Γ ⊢ A) → Set where
-    App-cong₁ : ∀{Γ A B} {F F' : Γ ⊢ A ⇒ B} {E : Γ ⊢ A} 
-                    → F ⟶ F' → App F E ⟶ App F' E
-    App-cong₂ : ∀{Γ A B} {V : Γ ⊢ A ⇒ B} {E E' : Γ ⊢ A} 
-                    → Value V → E ⟶ E' → App V E ⟶ App V E'
+    App-cong₁ : ∀{Γ A B} {F F′ : Γ ⊢ A ⇒ B} {E : Γ ⊢ A} 
+                    → F ⟶ F′ → App F E ⟶ App F′ E
+    App-cong₂ : ∀{Γ A B} {V : Γ ⊢ A ⇒ B} {E E′ : Γ ⊢ A} 
+                    → Value V → E ⟶ E′ → App V E ⟶ App V E′
     Lambda-β : ∀{Γ A B} {F : Γ , A ⊢ B} {V : Γ ⊢ A}
                     → Value V → App (Lambda F) V ⟶ F [ V ]

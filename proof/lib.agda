@@ -41,10 +41,10 @@ data _≡_ {l} {A : Set l} (x : A) : A → Set l where
 sym : ∀ {l} {A : Set l} {x y : A} → x ≡ y → y ≡ x
 sym refl = refl
 
-cong : ∀ {l l'} {A : Set l} {B : Set l'} (f : A → B) {x y : A} → x ≡ y → f x ≡ f y
+cong : ∀ {l l′} {A : Set l} {B : Set l′} (f : A → B) {x y : A} → x ≡ y → f x ≡ f y
 cong f refl = refl
 
-sub : ∀ {l l'} {A : Set l} {x y : A} (P : A → Set l') → x ≡ y → P x → P y
+sub : ∀ {l l′} {A : Set l} {x y : A} (P : A → Set l′) → x ≡ y → P x → P y
 sub P refl px = px
 
 trans : ∀ {l} {A : Set l} {x y z : A} → x ≡ y → y ≡ z → x ≡ z
@@ -181,17 +181,17 @@ n+m–m≡n {m} {zero} =
 n+m–m≡n {m} {suc n} = 
     trans 
         (–-irrelevant {suc n + m} {m} +→≤ʳ (≤-trans +→≤ʳ n≤suc-n)) 
-        (trans (sym (–-suc {n + m} {m})) 
+        (trans  (sym (–-suc {n + m} {m})) 
                 (cong suc (n+m–m≡n {m} {n})))
 
--- m ≤ n → m – p ≤ n – p
-sub-monoʳ-≤ : ∀ {p m n} → (p≤m : p ≤ m) → (m≤n : m ≤ n) 
-                → (m – p) p≤m ≤ (n – p) (≤-trans p≤m m≤n)
-sub-monoʳ-≤ z≤n m≤n = m≤n
-sub-monoʳ-≤ (s≤s p≤m) (s≤s m≤n) = sub-monoʳ-≤ p≤m m≤n
+-- -- m ≤ n → m – p ≤ n – p
+-- –-monoʳ-≤ : ∀ {p m n} → (p≤m : p ≤ m) → (m≤n : m ≤ n) 
+--                 → (m – p) p≤m ≤ (n – p) (≤-trans p≤m m≤n)
+-- –-monoʳ-≤ z≤n m≤n = m≤n
+-- –-monoʳ-≤ (s≤s p≤m) (s≤s m≤n) = –-monoʳ-≤ p≤m m≤n
 
--- suc d ≤ d' → d ≤ d' – (d' – (suc d))
-suc-d≤d'→d≤d'–[d'–[suc-d]] : ∀ {d d'} → (δ₁≤δ₂ : suc d ≤ d') 
-            → d ≤ ((d' – ((d' – (suc d)) δ₁≤δ₂)) (–→≤ δ₁≤δ₂))
-suc-d≤d'→d≤d'–[d'–[suc-d]] δ₁≤δ₂ = 
+-- suc d ≤ d′ → d ≤ d′ – (d′ – (suc d))
+suc-d≤d′→d≤d′–[d′–[suc-d]] : ∀ {d d′} → (δ₁≤δ₂ : suc d ≤ d′) 
+            → d ≤ ((d′ – ((d′ – (suc d)) δ₁≤δ₂)) (–→≤ δ₁≤δ₂))
+suc-d≤d′→d≤d′–[d′–[suc-d]] δ₁≤δ₂ = 
             m≡n,p≤n→p≤m (n–[n–m]≡m δ₁≤δ₂) n≤suc-n

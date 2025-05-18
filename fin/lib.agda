@@ -34,32 +34,52 @@ suc m * n = n + m * n
 {-# BUILTIN NATTIMES _*_ #-}
 
 -- Relations of natural numbers
-data _≡_ {a} {A : Set a} (x : A) : A → Set a where
+data _≡_ {l} {A : Set l} (x : A) : A → Set l where
   refl : x ≡ x
 {-# BUILTIN EQUALITY _≡_  #-}
 
-cong : ∀ {A B : Set} (f : A → B) {x y : A} → x ≡ y → f x ≡ f y
-cong f refl = refl
-
-sym : ∀ {A : Set} {x y : A} → x ≡ y → y ≡ x
+sym : ∀ {l} {A : Set l} {x y : A} → x ≡ y → y ≡ x
 sym refl = refl
 
-sub : ∀ {A : Set} {x y : A} (P : A → Set) → x ≡ y → P x → P y
+cong : ∀ {l l′} {A : Set l} {B : Set l′} (f : A → B) {x y : A} → x ≡ y → f x ≡ f y
+cong f refl = refl
+
+sub : ∀ {l l′} {A : Set l} {x y : A} (P : A → Set l′) → x ≡ y → P x → P y
 sub P refl px = px
 
-trans : ∀ {A : Set} {x y z : A} → x ≡ y → y ≡ z → x ≡ z
+trans : ∀ {l} {A : Set l} {x y z : A} → x ≡ y → y ≡ z → x ≡ z
 trans refl refl = refl
 
 -- n∸n≡0 : ∀ {n : ℕ} → n ∸ n ≡ zero
 -- n∸n≡0 {zero} = refl
 -- n∸n≡0 {suc n} = n∸n≡0 {n}
 
++-identityʳ : ∀ {n} → n + zero ≡ n
++-identityʳ {zero} = refl
++-identityʳ {suc n} rewrite +-identityʳ {n} = refl
+-- +-identityʳ {suc n} = cong suc (+-identityʳ {n})
+
++-sucʳ : ∀ {m n} → m + suc n ≡ suc (m + n)
++-sucʳ {zero} {n} = refl
++-sucʳ {suc m} {n} rewrite +-sucʳ {m} {n} = refl
+-- +-sucʳ {suc m} {n} = cong suc (+-sucʳ {m})
+
++-comm : ∀ {m n} → m + n ≡ n + m
++-comm {m} {zero} = +-identityʳ
++-comm {m} {suc n} rewrite (+-sucʳ {m} {n}) | (+-comm {m} {n}) = refl
+-- +-comm {m} {suc n} = trans +-sucʳ (cong suc (+-comm {m} {n}))
+
+
 data _≤_ : ℕ → ℕ → Set where
     z≤n : ∀ {n : ℕ} → zero ≤ n
     s≤s : ∀ {m n : ℕ} → m ≤ n → suc m ≤ suc n
 
-inv-s≤s : ∀ {m n : ℕ} → suc m ≤ suc n → m ≤ n
-inv-s≤s (s≤s m≤n) = m≤n
+≤-irrelevant : ∀ {m n} → (p₁ p₂ : m ≤ n) → p₁ ≡ p₂
+≤-irrelevant z≤n z≤n = refl
+≤-irrelevant (s≤s p₁) (s≤s p₂) = cong s≤s (≤-irrelevant p₁ p₂)
+
+-- inv-s≤s : ∀ {m n : ℕ} → suc m ≤ suc n → m ≤ n
+-- inv-s≤s (s≤s m≤n) = m≤n
 
 ≤-refl : ∀ {n : ℕ} → n ≤ n
 ≤-refl {zero} = z≤n
@@ -73,9 +93,19 @@ n≤suc-n : ∀ {n : ℕ} → n ≤ suc n
 n≤suc-n {zero} = z≤n
 n≤suc-n {suc n} = s≤s n≤suc-n
 
+m≡n,p≤n→p≤m : ∀ {p m n} → m ≡ n → p ≤ n → p ≤ m
+m≡n,p≤n→p≤m m≡n p≤n rewrite sym m≡n = p≤n
+
 +→≤ : ∀ {m n : ℕ} → m ≤ m + n
 +→≤ {zero} {n} = z≤n
 +→≤ {suc m} {n} = s≤s (+→≤ {m} {n})
+
++→≤ʳ : ∀ {m n : ℕ} → m ≤ n + m
+-- +→≤ʳ {m} {zero} = ≤-refl {m}
++→≤ʳ {m} {n} = m≡n,p≤n→p≤m (+-comm {n} {m}) +→≤
+-- +→≤ʳ : ∀ {m} → ∀ {n} → m ≤ n + m
+-- +→≤ʳ {m} {zero} = ≤-refl {m}
+-- +→≤ʳ {m} {n} = m≡n,p≤n→p≤m (+-comm {n} {m}) +→≤
 
 data Order : ℕ → ℕ → Set where
     leq : ∀ {m n : ℕ} → m ≤ n → Order m n
@@ -112,9 +142,9 @@ data Fin : ℕ → Set where
   fzero : ∀ {n} → Fin (suc n)
   fsuc : ∀ {n} → Fin n → Fin (suc n)
 
-toℕ : ∀ {m} → Fin m → ℕ
-toℕ fzero = zero
-toℕ (fsuc i) = suc (toℕ i)
+-- toℕ : ∀ {m} → Fin m → ℕ
+-- toℕ fzero = zero
+-- toℕ (fsuc i) = suc (toℕ i)
 
 -- max-Fin : ∀ {m} → Fin (suc m)
 -- max-Fin {zero} = fzero
@@ -128,9 +158,9 @@ toℕ (fsuc i) = suc (toℕ i)
 ≤→Fin z≤n = fzero
 ≤→Fin (s≤s p) = fsuc (≤→Fin p)
 
-toℕ-≤→Fin : ∀ {m n} → (m≤n : m ≤ n) → toℕ (≤→Fin m≤n) ≡ m
-toℕ-≤→Fin z≤n = refl
-toℕ-≤→Fin (s≤s m≤n) = cong suc (toℕ-≤→Fin m≤n)
+-- toℕ-≤→Fin : ∀ {m n} → (m≤n : m ≤ n) → toℕ (≤→Fin m≤n) ≡ m
+-- toℕ-≤→Fin z≤n = refl
+-- toℕ-≤→Fin (s≤s m≤n) = cong suc (toℕ-≤→Fin m≤n)
 
 -- max-Fin≡≤-refl→Fin : ∀ {n} →  max-Fin {n} ≡ ≤→Fin (≤-refl {n})
 -- max-Fin≡≤-refl→Fin {zero} = refl
@@ -147,11 +177,15 @@ _–_ : (m : ℕ) → Fin (suc m) → ℕ
 m – fzero = m
 suc m – fsuc n = m – n
 
+–-irrelevant : ∀ {n m} → (p₁ p₂ : m ≤ n) → (n – ≤→Fin p₁) ≡ (n – ≤→Fin p₂)
+–-irrelevant {n} {m} p₁ p₂ rewrite ≤-irrelevant p₁ p₂ = refl
+
 -- -→≤ : ∀{m : ℕ} → ∀{n : Fin (suc m)} → m - n ≤ m
 -- -→≤ {m} {n} = ∸-≤ {m} {toℕ n}
-–→≤ : ∀ {m} → ∀ {n : Fin (suc m)} → m – n ≤ m
-–→≤ {m} {fzero} = ≤-refl
-–→≤ {suc m} {fsuc n} = ≤-trans ((–→≤ {m} {n})) (n≤suc-n {m})
+–→≤ : ∀ {n} → ∀ {m : Fin (suc n)} → n – m ≤ n
+–→≤ {n} {fzero} = ≤-refl
+–→≤ {suc n} {fsuc m} = ≤-trans ((–→≤ {n} {m})) (n≤suc-n {n})
+
 
 -- n-n≡0 : ∀{n : ℕ} → n - (max-fin {n}) ≡ 0
 -- n-n≡0 {n} = subst (λ m → n ∸ m ≡ 0) (sym toℕ-max-fin) (n∸n≡0 {n})
@@ -170,21 +204,28 @@ n–n≡0 {suc n} = n–n≡0 {n}
 –-suc {suc n} {suc m} {s≤s m≤n} = –-suc {n} {m} {m≤n}
 
 
-n–[n–m]≡m : ∀ {m n} → (m≤n : m ≤ n) 
-                → n – (≤→Fin (–→≤ {n} {≤→Fin m≤n})) ≡ m
+n–[n–m]≡m : ∀ {m n} → (m≤n : m ≤ n) → n – (≤→Fin (–→≤ {n} {≤→Fin m≤n})) ≡ m
 n–[n–m]≡m {zero} {n} z≤n = n–n≡0 {n}
-n–[n–m]≡m {suc m} {suc n} (s≤s m≤n) = trans (sym (–-suc {n} {n – ≤→Fin m≤n} { –→≤ {n} {≤→Fin m≤n} })) (cong suc (n–[n–m]≡m {m} {n} m≤n))
+n–[n–m]≡m {suc m} {suc n} (s≤s m≤n) = 
+    trans (sym (–-suc {m = n – ≤→Fin m≤n} {–→≤ {m = ≤→Fin m≤n}})) 
+            (cong suc (n–[n–m]≡m {m} {n} m≤n))
+
+
+n+m–m≡n : ∀ {m n} → (n + m – ≤→Fin (+→≤ʳ {m} {n})) ≡ n
+n+m–m≡n {m} {zero} = 
+    trans (–-irrelevant {m} {m} +→≤ʳ ≤-refl) (n–n≡0 {m})
+n+m–m≡n {m} {suc n} =
+    trans 
+        (–-irrelevant {suc n + m} {m} +→≤ʳ (≤-trans +→≤ʳ n≤suc-n)) 
+        (trans  (sym (–-suc {n + m} {m} {+→≤ʳ})) 
+                (cong suc (n+m–m≡n {m} {n})))
 
 -- m ≤ n → m - p ≤ n - p
-–-monoʳ-≤ : ∀ {p m n} → (p≤m : p ≤ m) → (m≤n : m ≤ n) → m – (≤→Fin p≤m) ≤ n – (≤→Fin (≤-trans p≤m m≤n))
-–-monoʳ-≤ z≤n m≤n = m≤n
-–-monoʳ-≤ (s≤s p≤m) (s≤s m≤n) = –-monoʳ-≤ p≤m m≤n
-
--- m ≡ n, p ≤ n → p ≤ m
-m≡n,p≤n→p≤m : ∀ {p m n} → m ≡ n → p ≤ n → p ≤ m
-m≡n,p≤n→p≤m m≡n p≤n rewrite sym m≡n = p≤n
+-- –-monoʳ-≤ : ∀ {p m n} → (p≤m : p ≤ m) → (m≤n : m ≤ n) → m – (≤→Fin p≤m) ≤ n – (≤→Fin (≤-trans p≤m m≤n))
+-- –-monoʳ-≤ z≤n m≤n = m≤n
+-- –-monoʳ-≤ (s≤s p≤m) (s≤s m≤n) = –-monoʳ-≤ p≤m m≤n
 
 
--- suc d ≤ d' → d ≤ d' - (d' - (suc d))
-suc-d≤d'→d≤d'–[d'–[suc-d]] : ∀ {d d'} → (δ₁≤δ₂ : suc d ≤ d') → d ≤ (d' – ≤→Fin (–→≤ {d'} {≤→Fin δ₁≤δ₂}))
-suc-d≤d'→d≤d'–[d'–[suc-d]] {d} {d'} δ₁≤δ₂ = m≡n,p≤n→p≤m (n–[n–m]≡m δ₁≤δ₂) (n≤suc-n {d})
+-- suc d ≤ d′ → d ≤ d′ - (d′ - (suc d))
+suc-d≤d′→d≤d′–[d′–[suc-d]] : ∀ {d d′} → (δ₁≤δ₂ : suc d ≤ d′) → d ≤ (d′ – ≤→Fin (–→≤ {d′} {≤→Fin δ₁≤δ₂}))
+suc-d≤d′→d≤d′–[d′–[suc-d]] {d} {d′} δ₁≤δ₂ = m≡n,p≤n→p≤m (n–[n–m]≡m δ₁≤δ₂) (n≤suc-n {d})
